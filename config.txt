@@ -1,0 +1,17 @@
+nb_drones: 45
+start_hub: hub 1 2
+
+end_hub: goal 3 1 [color=yellow]
+
+hub: roof1 1 3 [zone=restricted color=red]
+
+hub: corridorA 0 0 [zone=priority max_drones=2]
+
+
+connection: hub-roof1
+
+connection: goal-corridorA
+
+
+
+                # this is a comment → ignored
