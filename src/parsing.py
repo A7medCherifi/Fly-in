@@ -1,6 +1,4 @@
-from zone import Zone, ZoneType
-from graph import Graph
-from connections import Connection
+from src.graph import Connection, Zone, ZoneType
 
 
 class ParsingError(Exception):
@@ -8,14 +6,14 @@ class ParsingError(Exception):
 
 
 class Parsing():
-    def __init__(self):
+    def __init__(self, graph):
         self.i = 1
         self.lines = None
         self.zone = ZoneType.NORMAL
         self.color = None
         self.max_drones = 1
         self.max_link_capacity = 1
-        self.graph = Graph()
+        self.graph = graph
 
     def valid_name(self, name):
         if not name or ' ' in name or '-' in name:
@@ -39,6 +37,9 @@ class Parsing():
                 raise ParsingError("Invalid Metadata Type")
             if key == 'zone':
                 value = ZoneType(value)
+            if key == 'color':
+                if ' ' in value or not value:
+                    raise ParsingError("Invalid Color!")
             if key == 'max_drones':
                 if int(value) <= 0:
                     raise ParsingError("Invalid max_drones value!")
@@ -181,19 +182,9 @@ class Parsing():
             self.nb_drones_parser()
             self.zone_checker()
             self.connection_checker()
-            print("\nEverything went will!")
         except FileNotFoundError:
             print(f"Error: [line {self.i}] File Not found!\n")
         except PermissionError:
             print(f"Error: [line {self.i}] File permission invalid!\n")
         except Exception as e:
             print(f"Error: [line {self.i}] {e}\n")
-
-
-def main():
-    parsing = Parsing()
-    parsing.parse('config.txt')
-
-
-if __name__ == "__main__":
-    main()
