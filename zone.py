@@ -9,7 +9,8 @@ class ZoneType(Enum):
 
 
 class Zone():
-    def __init__(self, name, x, y, zone, color, max_drones, isstart, isend):
+    def __init__(self, name: str, x: int, y: int, zone: ZoneType,
+                 color: str, max_drones: int, isstart: bool, isend: bool):
         self.name = name
         self.x = x
         self.y = y
