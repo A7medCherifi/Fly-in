@@ -7,8 +7,7 @@ def main():
     graph = Graph()
     parsing = Parsing(graph)
     parsing.parse('config.txt')
-    dijkstra = Dijkstra(graph)
-    dijkstra.printing()
+    Dijkstra(graph)
 
 
 if __name__ == "__main__":
