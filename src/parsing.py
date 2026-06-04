@@ -30,6 +30,7 @@ class Parsing():
 
     def valid_metadata(self, metadata):
         data = dict()
+        zone = color = drones = 0
         array = metadata.split()
         for element in array:
             key, value = element.strip().split('=')
@@ -37,14 +38,19 @@ class Parsing():
                 raise ParsingError("Invalid Metadata Type")
             if key == 'zone':
                 value = ZoneType(value)
+                zone += 1
             if key == 'color':
                 if ' ' in value or not value:
                     raise ParsingError("Invalid Color!")
+                color += 1
             if key == 'max_drones':
                 if int(value) <= 0:
                     raise ParsingError("Invalid max_drones value!")
                 value = int(value)
+                drones += 1
             data[key] = value
+        if zone > 1 or color > 1 or drones > 1:
+            raise ParsingError("Duplicated metadata values!")
         self.zone = data.get('zone', ZoneType.NORMAL)
         self.color = data.get('color', None)
         self.max_drones = data.get('max_drones', 1)
@@ -74,6 +80,8 @@ class Parsing():
         if self.graph.get_zone(name):
             raise ParsingError("Duplicated Zones!")
         if key == "start_hub":
+            if self.zone.value == 'blocked':
+                raise ParsingError("Start_hub Cant be blocked!")
             zone = Zone(name, x, y, self.zone, self.color,
                         self.max_drones, True, False)
         elif key == "end_hub":
@@ -146,6 +154,18 @@ class Parsing():
                 raise ParsingError("Duplicate connection!")
         connection = Connection(zone1, zone2, self.max_link_capacity)
         self.graph.add_to_connections(connection)
+
+        self.graph.zones[zone1].connection.append(connection)
+        self.graph.zones[zone2].connection.append(connection)
+
+        zone2_data = self.graph.zones[zone2].get_zone()
+        cost2 = self.graph.calculate_cost(zone2_data)
+        self.graph.zones[zone1].neighbor.append([zone2, cost2])
+
+        zone1_data = self.graph.zones[zone1].get_zone()
+        cost1 = self.graph.calculate_cost(zone1_data)
+        self.graph.zones[zone2].neighbor.append([zone1, cost1])
+
         self.max_link_capacity = 1
 
     def connection_checker(self):
@@ -183,8 +203,11 @@ class Parsing():
             self.zone_checker()
             self.connection_checker()
         except FileNotFoundError:
-            print(f"Error: [line {self.i}] File Not found!\n")
+            print("Error: File Not found!\n")
+            exit(1)
         except PermissionError:
-            print(f"Error: [line {self.i}] File permission invalid!\n")
+            print("Error: File permission invalid!\n")
+            exit(1)
         except Exception as e:
             print(f"Error: [line {self.i}] {e}\n")
+            exit(1)
