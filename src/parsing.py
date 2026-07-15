@@ -238,11 +238,12 @@ class Parsing():
             self.nb_drones_parser()
             self.zone_checker()
             self.connection_checker()
-            return
         except FileNotFoundError:
             print("Error: File Not found!\n")
+            exit(1)
         except PermissionError:
             print("Error: File permission invalid!\n")
+            exit(1)
         except Exception as e:
             print(f"Error: [line {self.line_idx + 1}] {e}\n")
-        exit(1)
+            exit(1)
