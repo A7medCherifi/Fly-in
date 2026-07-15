@@ -7,9 +7,9 @@ def main():
     graph = Graph()
     parsing = Parsing(graph)
     parsing.parse('config.txt')
-    graph.create_grid()
-    path_finder = Pathfinder(graph)
-    path_finder.dijkstra()
+    # graph.create_grid()
+    # path_finder = Pathfinder(graph)
+    # path_finder.dijkstra()
 
 
 if __name__ == "__main__":

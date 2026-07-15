@@ -1,5 +1,4 @@
 from enum import Enum
-from src.drones import Drones
 
 
 class ZoneType(Enum):
@@ -9,17 +8,20 @@ class ZoneType(Enum):
     PRIORITY = "priority"
 
 
+class Drones():
+    def __init__(self):
+        self.nb_drones = 0
+
+
 class Zone():
-    def __init__(self, name: str, x: int, y: int, zone: ZoneType,
-                 color: str, max_drones: int, isstart: bool, isend: bool):
-        self.name = name
-        self.x = x
-        self.y = y
-        self.isstart = isstart
-        self.isend = isend
-        self.zone = zone
-        self.color = color
-        self.max_drones = max_drones
+    def __init__(self):
+        self.name = str
+        self.coordinates = tuple()
+        self.isstart = bool
+        self.isend = bool
+        self.zone_type = ZoneType.NORMAL
+        self.color = str
+        self.max_drones = int
         self.neighbor = list()
         self.connection = list()
 
@@ -39,10 +41,10 @@ class Zone():
 
 
 class Connection():
-    def __init__(self, zone1, zone2, max_link_capacity):
-        self.zone1 = zone1
-        self.zone2 = zone2
-        self.max_link_capacity = max_link_capacity
+    def __init__(self):
+        self.zone1 = Zone()
+        self.zone2 = Zone()
+        self.max_link_capacity = int
 
     def get_connection(self):
         return {
@@ -54,7 +56,7 @@ class Connection():
 
 class Graph():
     def __init__(self):
-        self.drones = Drones()
+        self.nb_drones = 0
         self.zones = dict()
         self.connections = list()
         self.grid = dict()
