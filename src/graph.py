@@ -25,20 +25,6 @@ class Zone():
         self.neighbor = list()
         self.connection = list()
 
-    def get_zone(self):
-        return {
-            'name': self.name,
-            'x': self.x,
-            'y': self.y,
-            'isstart': self.isstart,
-            'isend': self.isend,
-            'zone': self.zone.value,
-            'color': self.color,
-            'max_drones': self.max_drones,
-            'neighbor': self.neighbor,
-            'connection': self.connection,
-        }
-
 
 class Connection():
     def __init__(self):

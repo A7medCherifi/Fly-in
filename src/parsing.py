@@ -17,6 +17,7 @@ class Parsing():
         self.max_link_capacity = 1
         self.graph = graph
 
+    # ======= Validation =======
     def valid_zone_name(self, name):
         name = name.strip()
         if '-' in name:
@@ -26,11 +27,11 @@ class Parsing():
         return name
 
     def valid_coordinates(self, x, y):
-
-        if not x.isdigit() or not y.isdigit():
+        try:
+            x = int(x)
+            y = int(y)
+        except ValueError:
             raise ParsingError("Coordinates should be Integers only!")
-        x = int(x)
-        y = int(y)
         for e in self.graph.zones:
             if self.graph.zones[e].coordinates == (x, y):
                 raise ParsingError("Duplicated coordinates are invalid!")
@@ -39,7 +40,6 @@ class Parsing():
     def valid_metadata(self, metadata):
         data = dict()
         zone = color = drones = 0
-        print(metadata)
         array = metadata.split()
         for element in array:
             key, _, value = element.strip().partition('=')
@@ -55,10 +55,11 @@ class Parsing():
                     raise ParsingError("Invalid Color!")
                 color += 1
             elif key == 'max_drones':
-                if not value.isdigit():
+                try:
+                    value = int(value)
+                except ValueError:
                     raise ParsingError(
                         "max_drones Should be a Positive Integer!")
-                value = int(value)
                 if value <= 0:
                     raise ParsingError("max_drones can't be Negative or 0!")
                 drones += 1
@@ -90,16 +91,18 @@ class Parsing():
         key, _, value = metadata.partition('=')
         if 'max_link_capacity' != key:
             raise ParsingError("Invalid Metadata!")
-        if not value.isdigit():
+        try:
+            value = int(value)
+        except ValueError:
             raise ParsingError("Invalid max_link_capacity Value!")
-        if int(value) <= 0:
+        if value <= 0:
             raise ParsingError("max_link_capacity Can't be Negative or 0!")
         self.max_link_capacity = int(value)
 
     # ========= Drones =========
     def nb_drones_parser(self):
         first_line = self.lines[self.line_idx]
-        while first_line.startswith('#') or not first_line.strip():
+        while first_line.strip().startswith('#') or not first_line.strip():
             self.line_idx += 1
             first_line = self.lines[self.line_idx]
         key, _, value = first_line.partition(':')
@@ -147,6 +150,8 @@ class Parsing():
             line, _, metadata = line.partition('[')
             if ']' in metadata:
                 metadata, _, trash = metadata.partition(']')
+                if not metadata.strip():
+                    raise ParsingError("Empty Metadata!")
                 if trash and not trash.strip().startswith('#'):
                     raise ParsingError("Invalid Input after Metadata!")
             else:
@@ -205,6 +210,8 @@ class Parsing():
             line, _, metadata = line.partition('[')
             if ']' in metadata:
                 metadata, _, trash = metadata.partition(']')
+                if not metadata.strip():
+                    raise ParsingError("Empty Metadata!")
                 if trash and not trash.strip().startswith('#'):
                     raise ParsingError("Invalid Input after Metadata!")
             else:
@@ -224,18 +231,18 @@ class Parsing():
         self.max_link_capacity = 1
 
     def parse(self, file_name: str):
-        # try:
-        with open(file_name, 'r') as f:
-            data = f.read()
-        self.lines = data.splitlines()
-        self.nb_drones_parser()
-        self.zone_checker()
-        self.connection_checker()
-        return
-        # except FileNotFoundError:
-        #     print("Error: File Not found!\n")
-        # except PermissionError:
-        #     print("Error: File permission invalid!\n")
-        # except Exception as e:
-        #     print(f"Error: [line {self.i}] {e}\n")
-        # exit(1)
+        try:
+            with open(file_name, 'r') as f:
+                data = f.read()
+            self.lines = data.splitlines()
+            self.nb_drones_parser()
+            self.zone_checker()
+            self.connection_checker()
+            return
+        except FileNotFoundError:
+            print("Error: File Not found!\n")
+        except PermissionError:
+            print("Error: File permission invalid!\n")
+        except Exception as e:
+            print(f"Error: [line {self.line_idx + 1}] {e}\n")
+        exit(1)
