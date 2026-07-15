@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict, List
 
 
 class ZoneType(Enum):
@@ -28,6 +29,7 @@ class Zone():
 
 class Connection():
     def __init__(self):
+        self.name = str
         self.zone1 = Zone()
         self.zone2 = Zone()
         self.max_link_capacity = int
@@ -43,11 +45,11 @@ class Connection():
 class Graph():
     def __init__(self):
         self.nb_drones = 0
-        self.zones = dict()
-        self.connections = list()
+        self.zones: Dict[str, Zone] = {}
+        self.connections: Dict[str, List[Connection]] = {}
         self.grid = dict()
-        self.start = ''
-        self.end = ''
+        self.start = Zone
+        self.end = Zone
 
     def add_to_zones(self, name, zone: Zone):
         self.zones.update({name: zone})

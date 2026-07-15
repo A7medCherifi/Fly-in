@@ -81,11 +81,11 @@ class Parsing():
             raise ParsingError(f"{zone1} not a Zone!")
         if zone2 not in self.graph.zones:
             raise ParsingError(f"{zone2} not a Zone!")
-        for c in self.graph.connections:
-            if (c.zone1.name == zone1 and c.zone2.name == zone2) or \
-              (c.zone1.name == zone2 and c.zone2.name == zone1):
-                raise ParsingError("Duplicate connection!")
-        return (zone1, zone2)
+        if zone1 in self.graph.connections:
+            for c in self.graph.connections[zone1]:
+                if c.zone1.name == zone2 or c.zone2.name == zone2:
+                    raise ParsingError("Duplicate connection!")
+        return (zone1.strip(), zone2.strip())
 
     def valid_connection_metadata(self, metadata):
         key, _, value = metadata.partition('=')
@@ -224,10 +224,17 @@ class Parsing():
             self.valid_connection_metadata(metadata)
         zone1 = self.graph.zones[name1]
         zone2 = self.graph.zones[name2]
+        connection.name = f"{name1}-{name2}"
         connection.zone1 = zone1
         connection.zone2 = zone2
         connection.max_link_capacity = self.max_link_capacity
-        self.graph.connections.append(connection)
+        if name1 not in self.graph.connections:
+            self.graph.connections[name1] = []
+        if name2 not in self.graph.connections:
+            self.graph.connections[name2] = []
+
+        self.graph.connections[name1].append(connection)
+        self.graph.connections[name2].append(connection)
         self.max_link_capacity = 1
 
     def parse(self, file_name: str):
@@ -244,6 +251,6 @@ class Parsing():
         except PermissionError:
             print("Error: File permission invalid!\n")
             exit(1)
-        except Exception as e:
-            print(f"Error: [line {self.line_idx + 1}] {e}\n")
-            exit(1)
+        # except Exception as e:
+        #     print(f"Error: [line {self.line_idx + 1}] {e}\n")
+        #     exit(1)
