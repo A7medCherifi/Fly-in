@@ -7,6 +7,7 @@ def main():
     graph = Graph()
     parsing = Parsing(graph)
     parsing.parse('config.txt')
+    graph.shortest_path()
     # graph.create_grid()
     # path_finder = Pathfinder(graph)
     # path_finder.dijkstra()
