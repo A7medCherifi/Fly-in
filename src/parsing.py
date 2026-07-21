@@ -172,14 +172,9 @@ class Parsing():
         zone.color = self.color
         zone.max_drones = self.max_drones
         if key == 'start_hub':
-            zone.isstart = True
-            zone.isend = False
+            self.graph.start = zone
         elif key == 'end_hub':
-            zone.isstart = False
-            zone.isend = True
-        else:
-            zone.isstart = False
-            zone.isend = False
+            self.graph.end = zone
         self.graph.zones[name] = zone
         self.zone_type = ZoneType.NORMAL
         self.color = None
