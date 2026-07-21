@@ -92,7 +92,7 @@ class Pathfinder():
         #         exit(1)
 
         #     next = self.queue[0][3]
-        #     # print(f"\nCurrent Zone: {current} -> {costs[current]} -> {next}")
+        #  print(f"\nCurrent Zone: {current} -> {costs[current]} -> {next}")
         #     self.tracker[zone['name']] = [previous, next]
         #     previous = self.queue[0][2]
         #     current = next
