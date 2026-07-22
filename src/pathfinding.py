@@ -23,7 +23,7 @@ class Pathfinder():
     def shortest_path(self):
         visited_zones = set()
         current_zone = self.graph.start
-        self.algo_table = self.__build_algo_table()
+        self.__build_algo_table()
         heap = [
             (self.algo_table[current_zone.name]['cost'], current_zone.name)
         ]
@@ -33,7 +33,7 @@ class Pathfinder():
             if current_zone in visited_zones:
                 continue
             visited_zones.add(current_zone)
-            if self.zones[current_zone].name == self.graph.start.name:
+            if self.zones[current_zone].name == self.graph.end.name:
                 break
 
             neighbors = self.graph.get_neighbors(current_zone)
@@ -45,7 +45,7 @@ class Pathfinder():
                     self.algo_table[neighbor.name]['parent'] = current_zone
                     heapq.heappush(heap, (cost, neighbor.name))
 
-        if self.end.name not in visited_zones:
+        if self.graph.end.name not in visited_zones:
             print("Error: Zone permission denied!")
             exit(1)
         return self.__get_path()
