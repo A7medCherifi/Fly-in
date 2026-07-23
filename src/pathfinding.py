@@ -1,6 +1,5 @@
 from src.graph import Graph
 import heapq
-import copy
 
 
 class Pathfinder():
@@ -10,49 +9,47 @@ class Pathfinder():
         self.algo_table = dict()
         self.paths = []
 
-    def update_paths(self):
-        cost, path = heapq.heappop(self.paths)
-        zone = path[-1]
-        neighbors = self.graph.get_neighbors(zone)
-        if not neighbors:
-            if self.graph.end.name in path:
-                heapq.heappush(self.paths, [cost, path])
-                return []
-        origin_path = copy.deepcopy(path)
-        print(f"Neighbors of {zone}: {neighbors}")
-        for neighbor in neighbors:
-            if neighbor.name in path:
-                continue
-            if self.graph.end.name in path:
-                continue
-            print(f"Neighbor: {neighbor.name}")
-            print(f"Current Path: {path}")
-            zone = neighbor.name
-            path = copy.deepcopy(origin_path)
-            path.append(zone)
-            print(f"Added the neighbor: {path}")
-            new_cost = self.graph.get_zone_cost(zone)
-            cost += new_cost
-            heapq.heappush(self.paths, [cost, path])
-            print(f"Heap Paths: {self.paths}\n")
-
-        return (cost, path)
-
-    def get_all_paths(self):
+    def get_preferred_paths(self):
         paths = []
         current_zone = self.graph.start
-        self.paths = [[1, [current_zone.name]]]
-        cost, path = self.update_paths()
+        cost = self.graph.get_zone_cost(current_zone.name)
+        self.paths = [[cost, [current_zone.name]]]
+
+        is_first_path = True
+        first_path_cost = 0
         while self.paths:
-            # print("Path:", path)
-            print(f"\nAll Paths:\n{self.paths}\n")
-            print("================================\n")
-            if self.graph.end.name not in path:
-                cost, path = self.update_paths()
-            else:
+            cost, path = heapq.heappop(self.paths)
+            zone = path[-1]
+
+            if not is_first_path:
+                if (cost - first_path_cost) > 2:
+                    break
+
+            if zone == self.graph.end.name:
+                if is_first_path:
+                    first_path_cost = cost
+                    is_first_path = False
                 paths.append([cost, path])
-                cost, path = self.update_paths()
-        print(paths)
+                continue
+
+            neighbors = self.graph.get_neighbors(zone)
+            if not neighbors:
+                continue
+
+            for neighbor in neighbors:
+                if neighbor.name in path:
+                    continue
+                new_path = list(path)
+                new_path.append(neighbor.name)
+
+                neighbor_cost = self.graph.get_zone_cost(zone)
+                new_cost = neighbor_cost + cost
+                heapq.heappush(self.paths, [new_cost, new_path])
+
+        print("\n============PATHS============\n")
+        print(*paths, sep='\n')
+        print("\n=============================\n")
+        return paths
 
     def __build_algo_table(self):
         for zone in self.zones.values():
@@ -103,3 +100,29 @@ class Pathfinder():
             path.append(current)
             current = self.algo_table[current]['parent']
         return path[::-1]
+
+
+"""
+# Easy Level 2: Simple fork with two paths
+nb_drones: 4
+
+start_hub: B 1 0 [color=yellow max_drones=2]
+hub: C 2 1 [color=blue]
+hub: G 3 1 [color=blue]
+hub: X 4 1 [color=blue]
+hub: Y 5 1 [color=blue]
+hub: D 2 -1 [color=blue]
+hub: F 5 -1 [color=blue]
+end_hub: E 6 0 [color=red]
+
+connection: B-C
+connection: B-D
+connection: D-F
+connection: F-E
+connection: C-G
+connection: Y-E
+connection: F-G
+connection: G-X
+connection: X-Y
+
+"""

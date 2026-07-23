@@ -10,8 +10,13 @@ class ZoneType(Enum):
 
 
 class Drones():
-    def __init__(self):
-        self.nb_drones = 0
+    def __init__(self, id, path, name):
+        self.id = id
+        self.name = name
+        self.path = path
+        self.path_idx = 0
+        self.current_zone = self.path[0]
+        self.is_finished = False
 
 
 class Zone():
@@ -23,6 +28,8 @@ class Zone():
         self.max_drones = int
         self.neighbor = list()
         self.connection = list()
+        self.is_available = True
+        self.current_drones_count = 0
 
 
 class Connection():
