@@ -1,16 +1,14 @@
-# Medium Level 3: Priority zones create optimal path challenges
-nb_drones: 5
+# Easy Level 2: Simple fork with two paths
+nb_drones: 4
 
 start_hub: A 0 0 [color=green]
-hub: B 1 -1 [zone=restricted color=red]
-hub: C 2 -1 [color=red]
-hub: D 1 0 [zone=restricted color=blue max_drones=2]
-hub: E 2 0 [zone=restricted color=blue]
-end_hub: F 4 0 [color=green max_drones=4]
+hub: B 1 0 [color=yellow max_drones=2]
+hub: C 2 1 [color=blue]
+hub: D 2 -1 [color=blue]
+end_hub: E 3 0 [color=red]
 
-connection: A-B
-connection: A-C
+connection: A-B [max_link_capacity=2]
+connection: B-C
 connection: B-D
+connection: C-E
 connection: D-E
-connection: E-F
-connection: C-F

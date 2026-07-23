@@ -9,8 +9,8 @@ def main():
     parsing.parse('config.txt')
 
     path_finder = Pathfinder(graph)
-    path = path_finder.shortest_path()
-    print(path)
+    path_finder.get_all_paths()
+    # print(path)
 
 
 if __name__ == "__main__":
