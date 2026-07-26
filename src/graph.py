@@ -18,8 +18,8 @@ class Drones():
         self.next_zones = dict()
         self.next_zone = ""
         self.visited_zones = list()
-        # self.path = None
-        # self.path_idx = 0
+        self.path = list()
+        self.path_idx = 0
         self.on_connection = False
 
 

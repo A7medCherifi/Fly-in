@@ -7,12 +7,16 @@ class Simulator():
         self.paths = paths
         self.drones = list()
 
-    def assign_first_zone(self):
+    def create_drones(self):
         for id in range(self.graph.nb_drones):
             drone = Drones()
             drone.id = id + 1
             drone.name = f"D{id + 1}"
-            drone.current_zone = self.graph.start.name
+            # drone.current_zone = self.graph.start.name
+            path = self.paths[id % len(self.paths)]
+            drone.path = path
+            drone.current_zone = path[1][0]
+            self.paths[id % len(self.paths)][0] += 1
             self.drones.append(drone)
 
     def assign_next_zones(self, drone):
@@ -20,14 +24,19 @@ class Simulator():
         drone.visited_zones.append(current_zone)
         if current_zone == self.graph.end.name:
             drone.next_zone = ""
+            drone.is_finished = True
             return
-        if not drone.next_zones:
-            return
-        next_zones = dict(sorted(drone.next_zones.items(), key=lambda e: e[1]))
-        next_zone = list(next_zones)[0]
+        # if not drone.next_zones:
+        #     return
+        # next_zones = dict(sorted(drone.next_zones.items(), key=lambda e: e[1]))
+        # next_zone = list(next_zones)[0]
+        drone.path_idx += 1
+        id = drone.path_idx
+        next_zone = drone.path[1][id]
+        # print(f">>>>>>>>>>>>{next_zone}")
         drone.next_zone = next_zone
-        zone = self.graph.zones[next_zone]
-        zone.zone_queue.append(drone)
+        # zone = self.graph.zones[next_zone]
+        # zone.zone_queue.append(drone)
 
     def calculate_cost_path(self, valid_path):
         cost = 0
@@ -66,14 +75,16 @@ class Simulator():
     def check_zone_availale(self, drone):
         next_zone = drone.next_zone
         if not next_zone:
-            zone = self.graph.zones[drone.current_zone]
-            if len(zone.zone_queue) > 0:
-                zone.zone_queue.pop(0)
+            # zone = self.graph.zones[drone.current_zone]
+            # if len(zone.zone_queue) > 0:
+            #     zone.zone_queue.pop(0)
             drone.is_finished = True
             return False
 
+        if drone.on_connection:
+            return True
         zone = self.graph.zones[next_zone]
-        if zone.zone_queue and zone.zone_queue[0].name != drone.name:
+        if not zone.is_available:
             return False
 
         if zone.current_drones_count >= zone.max_drones:
@@ -124,26 +135,37 @@ class Simulator():
 
         drone.current_zone = next_zone
         drone.next_zone = ""
-        drone.next_zones.clear()
+        # drone.next_zones.clear()
         drone.on_connection = False
 
         return f"{drone.name}-{next_zone} "
 
     def start_simulation(self):
-        self.assign_first_zone()
+        self.create_drones()
+        i = 0
         while not all(d.is_finished for d in self.drones):
             moves = ""
             for drone in self.drones:
+                # if i >= 30:
+                #     exit()
+                # print(drone.name)
                 if drone.is_finished:
+                    # print("1")
+                    i += 1
                     continue
                 if not drone.next_zone:
-                    self.extract_zones_neighbors(drone)
+                    # print("2")
+                    # self.extract_zones_neighbors(drone)
                     self.assign_next_zones(drone)
 
                 if not self.check_zone_availale(drone):
+                    # print("3")
+                    i += 1
                     continue
                 move = self.move_next_zone(drone)
+                # print("4")
                 moves += move
+                i += 1
             print(moves)
 
     # def move_next_zone(self, drone):
@@ -186,4 +208,3 @@ class Simulator():
     #         name = f"D{id + 1}"
     #         drone = Drones(id + 1, path[1], name)
     #         self.drones.append(drone)
-

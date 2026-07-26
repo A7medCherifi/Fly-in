@@ -17,19 +17,21 @@ class Pathfinder():
 
         is_first_path = True
         first_path_cost = 0
+        path_counter = 0
         while self.paths:
             cost, path = heapq.heappop(self.paths)
             zone = path[-1]
 
             if not is_first_path:
-                if (cost - first_path_cost) > 2:
+                if cost > first_path_cost or path_counter >= 2:
                     break
 
             if zone == self.graph.end.name:
                 if is_first_path:
-                    first_path_cost = cost
+                    first_path_cost = cost + self.graph.nb_drones
                     is_first_path = False
                 paths.append([cost, path])
+                path_counter += 1
                 continue
 
             neighbors = self.graph.get_neighbors(zone)
@@ -47,7 +49,7 @@ class Pathfinder():
                 heapq.heappush(self.paths, [new_cost, new_path])
 
         print("\n============PATHS============\n")
-        print(*paths, sep='\n')
+        print(len(paths))
         print("\n=============================\n")
         return paths
 
