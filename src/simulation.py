@@ -1,4 +1,6 @@
+from os import pathsep
 from src.graph import Drones
+import heapq
 
 
 class Simulator():
@@ -13,10 +15,11 @@ class Simulator():
             drone.id = id + 1
             drone.name = f"D{id + 1}"
             # drone.current_zone = self.graph.start.name
-            path = self.paths[id % len(self.paths)]
+            path = heapq.heappop(self.paths)
             drone.path = path
             drone.current_zone = path[1][0]
-            self.paths[id % len(self.paths)][0] += 1
+            path[0] += 1
+            heapq.heappush(self.paths, path)
             self.drones.append(drone)
 
     def assign_next_zones(self, drone):
