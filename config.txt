@@ -1,21 +1,95 @@
-# Easy Level 2: Simple fork with two paths
-nb_drones: 4
+nb_drones: 40
 
-start_hub: B 1 0 [color=yellow max_drones=2]
-hub: C 2 1 [color=blue]
-hub: G 3 1 [color=blue]
-hub: X 4 1 [color=blue]
-hub: Y 5 1 [color=blue]
-hub: D 2 -1 [color=blue]
-hub: F 5 -1 [color=blue]
-end_hub: E 6 0 [color=red]
+# === NODES ===
+start_hub: start 0 0 [color=green]
+end_hub: end 10 0 [color=rainbow]
 
-connection: B-C
-connection: B-D
-connection: D-F
-connection: F-E
-connection: C-G
-connection: Y-E
-connection: F-G
-connection: G-X
-connection: X-Y
+hub: l1_0 2 -2 [zone=restricted color=red max_drones=1]
+hub: l1_1 2 -1 [color=cyan]
+hub: l1_2 2 0 [zone=restricted color=red max_drones=1]
+hub: l1_3 2 1 [color=cyan]
+hub: l1_4 2 2 [zone=restricted color=red max_drones=1]
+hub: l2_0 4 -3 [color=cyan]
+hub: l2_1 4 -2 [color=purple max_drones=3]
+hub: l2_2 4 -1 [color=cyan]
+hub: l2_3 4 0 [color=cyan]
+hub: l2_4 4 1 [color=purple max_drones=3]
+hub: l2_5 4 2 [color=cyan]
+hub: l2_6 4 3 [color=cyan]
+hub: l3_0 6 -2 [zone=restricted color=red max_drones=1]
+hub: l3_1 6 -1 [color=cyan]
+hub: l3_2 6 0 [zone=restricted color=red max_drones=1]
+hub: l3_3 6 1 [color=purple max_drones=3]
+hub: l3_4 6 2 [zone=restricted color=red max_drones=1]
+hub: l4_0 8 -1 [zone=restricted color=red max_drones=1]
+hub: l4_1 8 0 [color=purple max_drones=3]
+hub: l4_2 8 1 [zone=restricted color=red max_drones=1]
+
+# === CONNECTIONS ===
+connection: start-l1_0 
+connection: start-l1_1 [max_link_capacity=1]
+connection: start-l1_2 [max_link_capacity=1]
+connection: start-l1_3 [max_link_capacity=2]
+connection: start-l1_4 [max_link_capacity=1]
+connection: l1_0-l2_0 
+connection: l1_0-l2_1 [max_link_capacity=1]
+connection: l1_0-l2_2 
+connection: l1_0-l2_3 [max_link_capacity=1]
+connection: l1_1-l2_0 [max_link_capacity=2]
+connection: l1_1-l2_1 [max_link_capacity=1]
+connection: l1_1-l2_2 [max_link_capacity=1]
+connection: l1_1-l2_3 [max_link_capacity=1]
+connection: l1_1-l2_4 
+connection: l1_2-l2_1 
+connection: l1_2-l2_2 [max_link_capacity=2]
+connection: l1_2-l2_3 
+connection: l1_2-l2_4 [max_link_capacity=1]
+connection: l1_2-l2_5 [max_link_capacity=1]
+connection: l1_3-l2_2 
+connection: l1_3-l2_3 [max_link_capacity=1]
+connection: l1_3-l2_4 [max_link_capacity=2]
+connection: l1_3-l2_5 [max_link_capacity=2]
+connection: l1_3-l2_6 
+connection: l1_4-l2_3 
+connection: l1_4-l2_4 [max_link_capacity=2]
+connection: l1_4-l2_5 [max_link_capacity=2]
+connection: l1_4-l2_6 
+connection: l2_0-l3_0 
+connection: l2_0-l3_1 
+connection: l2_1-l3_0 [max_link_capacity=1]
+connection: l2_1-l3_1 
+connection: l2_1-l3_2 
+connection: l2_2-l3_0 [max_link_capacity=1]
+connection: l2_2-l3_1 [max_link_capacity=2]
+connection: l2_2-l3_2 
+connection: l2_2-l3_3 [max_link_capacity=1]
+connection: l2_3-l3_0 
+connection: l2_3-l3_1 
+connection: l2_3-l3_2 [max_link_capacity=1]
+connection: l2_3-l3_3 [max_link_capacity=2]
+connection: l2_3-l3_4 [max_link_capacity=1]
+connection: l2_4-l3_1 
+connection: l2_4-l3_2 [max_link_capacity=2]
+connection: l2_4-l3_3 [max_link_capacity=1]
+connection: l2_4-l3_4 [max_link_capacity=1]
+connection: l2_5-l3_2 [max_link_capacity=2]
+connection: l2_5-l3_3 
+connection: l2_5-l3_4 [max_link_capacity=1]
+connection: l2_6-l3_3 [max_link_capacity=1]
+connection: l2_6-l3_4 [max_link_capacity=1]
+connection: l3_0-l4_0 
+connection: l3_0-l4_1 [max_link_capacity=1]
+connection: l3_1-l4_0 [max_link_capacity=2]
+connection: l3_1-l4_1 [max_link_capacity=2]
+connection: l3_1-l4_2 [max_link_capacity=1]
+connection: l3_2-l4_0 [max_link_capacity=1]
+connection: l3_2-l4_1 [max_link_capacity=2]
+connection: l3_2-l4_2 [max_link_capacity=2]
+connection: l3_3-l4_0 [max_link_capacity=1]
+connection: l3_3-l4_1 [max_link_capacity=2]
+connection: l3_3-l4_2 
+connection: l3_4-l4_1 
+connection: l3_4-l4_2 
+connection: l4_0-end 
+connection: l4_1-end [max_link_capacity=2]
+connection: l4_2-end 

@@ -1,7 +1,7 @@
 from src.graph import Graph
 from src.parsing import Parsing
 from src.pathfinding import Pathfinder
-from src.simulation import Simulator
+from src.simulation1 import Simulator
 
 
 def main():
@@ -10,8 +10,8 @@ def main():
     parsing.parse('config.txt')
 
     path_finder = Pathfinder(graph)
-    paths = path_finder.get_preferred_paths()
-    simulator = Simulator(graph, paths)
+    # path_finder.get_preferred_paths()
+    simulator = Simulator(graph, path_finder)
     simulator.start_simulation()
 
 
