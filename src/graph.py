@@ -15,9 +15,7 @@ class Drones():
         self.name = ""
         self.current_zone = ""
         self.is_finished = False
-        self.next_zones = dict()
         self.next_zone = ""
-        self.visited_zones = list()
         self.path = list()
         self.path_idx = 0
         self.on_connection = False
@@ -30,8 +28,8 @@ class Zone():
         self.zone_type = ZoneType.NORMAL
         self.color = str
         self.max_drones = int
-        self.neighbor = list()
-        self.connection = list()
+        # self.neighbor = list()
+        # self.connection = list()
         self.is_available = True
         self.current_drones_count = 0
         self.zone_queue = list()
@@ -57,6 +55,8 @@ class Graph():
         self.nb_drones = 0
         self.zones: Dict[str, Zone] = {}
         self.connections: Dict[str, List[Connection]] = {}
+        self.turn_table = dict()
+        self.conn_table = dict()
         self.start = Zone
         self.end = Zone
 

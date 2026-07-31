@@ -1,7 +1,7 @@
 from src.graph import Graph
 from src.parsing import Parsing
 from src.pathfinding import Pathfinder
-from src.simulation1 import Simulator
+from src.simulation import Simulator
 
 
 def main():

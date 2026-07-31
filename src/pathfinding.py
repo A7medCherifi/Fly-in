@@ -8,190 +8,118 @@ class Pathfinder():
         self.zones = graph.zones
         self.algo_table = dict()
         self.paths = []
+        self.turn_table = graph.turn_table
+        self.conn_table = graph.conn_table
 
     def __build_algo_table(self):
-        for zone in self.zones.values():
-            cost = float('inf')
-            if zone.name == self.graph.start.name:
-                cost = self.graph.get_zone_cost(zone.name)
-            self.algo_table.update({
-                f"{zone.name}": {
-                    "cost": cost,
-                    "parent": None
-                }
-            })
+        pass
 
-    def get_neighbors(self, name, visited):
-        neighbors = []
-        connections = self.graph.connections[name]
-        for connectinon in connections:
-            zone = connectinon.get_next_zone(name)
-            if zone.zone_type == ZoneType.BLOCKED:
-                continue
-            if zone.name in visited:
-                continue
-            if len(zone.zone_queue) >= zone.max_drones:
-                continue
-            neighbors.append(zone.name)
-        if connections and not neighbors:
-            for connectinon in connections:
-                zone = connectinon.get_next_zone(name)
-                if zone.zone_type == ZoneType.BLOCKED:
-                    continue
-                if zone.name in visited:
-                    continue
-                neighbors.append(zone.name)
-        return neighbors
+    def get_neighbors(self, zone_key):
+        pass
 
-    def print_data(self, current_zone):
-        zone = self.graph.zones[current_zone]
-        print("--------------------")
-        print(f"Current Drone: {current_zone}")
-        print(f"Max Drones: {zone.max_drones}")
-        print(f"Zone queue:\n{zone.zone_queue}\n")
-        print("--------------------\n")
+    def print_data(self):
+        pass
 
     def shortest_path(self, drone):
-        # self.create_turn_table()
-        visited_zones = set()
-        current_zone = self.graph.start
-        self.__build_algo_table()
+        current = self.graph.start.name 
+        visited = set()
+        turn = 0
+        cost = self.graph.get_zone_cost(current)
         heap = [
-            (self.algo_table[current_zone.name]['cost'], current_zone.name)
+            (cost, turn, current, [(current, turn)])
         ]
-        # print("========================================")
         while heap:
-            cost, current_zone = heapq.heappop(heap)
-            # self.print_data(current_zone)
-            # print(visited_zones)
-            if current_zone in visited_zones:
+            cost, turn, current, path = heapq.heappop(heap)
+
+            if current == self.graph.end.name:
+                return path
+            zone_key = (current, turn)
+            if zone_key in visited:
                 continue
-            visited_zones.add(current_zone)
+            visited.add(zone_key)
 
-            if current_zone == self.graph.end.name:
-                break
+            connections = self.graph.connections[current]
+            for connection in connections:
+                neighbor = connection.get_next_zone(current)
+                if neighbor.zone_type == ZoneType.BLOCKED:
+                    continue
 
-            neighbors = self.get_neighbors(current_zone, visited_zones)
-            # print(f"Neibors:\n{neighbors}\n")
-            for neighbor in neighbors:
-                neighbor_cost = self.graph.get_zone_cost(neighbor)
-                new_cost = cost + neighbor_cost
-                if new_cost < self.algo_table[neighbor]['cost']:
-                    self.algo_table[neighbor]['cost'] = new_cost
-                    self.algo_table[neighbor]['parent'] = current_zone
-                    heapq.heappush(heap, (new_cost, neighbor))
-            # print(heap)
-            # print("========================================\n")
+                neighbor_cost = 1
+                is_restricted = False
+                if neighbor.zone_type == ZoneType.RESTRICTED:
+                    is_restricted = True
+                    neighbor_cost = 2
 
-        if self.graph.end.name not in visited_zones:
-            print("Error: Zone permission denied!")
-            exit(1)
-        return self.__get_path(drone)
+                new_turn = turn + neighbor_cost
 
-    def __get_path(self, drone):
-        path = []
-        current = self.graph.end.name
-        while current:
+                if is_restricted:
+                    zone_capacity = self.turn_table.get((neighbor.name, turn + 1), 0)
+                    if zone_capacity:
+                        continue
+
+                conn_available = True
+                for t in range(turn, new_turn):
+                    conn_capacity = self.conn_table.get((connection.name, t), 0)
+                    if conn_capacity >= connection.max_link_capacity:
+                        conn_available = False
+                        break
+                if not conn_available:
+                    continue
+
+                if neighbor.name != self.graph.end.name:
+                    zone_usage = self.turn_table.get((neighbor.name, new_turn), 0)
+                    if zone_usage >= neighbor.max_drones:
+                        continue
+                priority_zone = 0.0
+                if neighbor.zone_type == ZoneType.PRIORITY:
+                    priority_zone = 0.1
+
+                final_cost = new_turn + cost + priority_zone
+                new_path = path.copy()
+                if is_restricted:
+                    new_path.append((f"connection:{connection.name}", turn + 1))
+                new_path.append((neighbor.name, new_turn))
+
+                heapq.heappush(heap, (
+                    final_cost,
+                    new_turn,
+                    neighbor.name,
+                    new_path
+                ))
+
+            next_turn = turn + 1
             zone = self.graph.zones[current]
-            zone.zone_queue.append(drone)
-            path.append(current)
-            current = self.algo_table[current]['parent']
-        return path[::-1]
+            if current == self.graph.start.name:
+                can_wait = True
+            else:
+                zone_usage = self.turn_table.get(current, next_turn)
+                if zone_usage < zone.max_drones:
+                    can_wait = True
+                else:
+                    can_wait = False
+            if can_wait:
+                new_path = path.copy()
+                new_path.append((current, next_turn))
+                heapq.heappush(heap, (
+                    cost + 1,
+                    next_turn,
+                    current,
+                    new_path
+                ))
+        return None
 
-    # def get_preferred_paths(self):
-    #     paths = []
-    #     current_zone = self.graph.start
-    #     cost = self.graph.get_zone_cost(current_zone.name)
-    #     self.paths = [[cost, [current_zone.name]]]
+    def reserve_path(self, path):
+        for i in range(len(path)):
+            zone, turn = path[i]
 
-    #     is_first_path = True
-    #     first_path_cost = 0
-    #     path_counter = 0
-    #     while self.paths:
-    #         cost, path = heapq.heappop(self.paths)
-    #         zone = path[-1]
-
-    #         if not is_first_path:
-    #             if cost > first_path_cost or path_counter >= 2:
-    #                 break
-
-    #         if zone == self.graph.end.name:
-    #             if is_first_path:
-    #                 first_path_cost = cost + self.graph.nb_drones
-    #                 is_first_path = False
-    #             paths.append([cost, path])
-    #             path_counter += 1
-    #             continue
-
-    #         neighbors = self.graph.get_neighbors(zone)
-    #         if not neighbors:
-    #             continue
-
-    #         for neighbor in neighbors:
-    #             if neighbor.name in path:
-    #                 continue
-    #             new_path = list(path)
-    #             new_path.append(neighbor.name)
-
-    #             neighbor_cost = self.graph.get_zone_cost(zone)
-    #             new_cost = neighbor_cost + cost
-    #             heapq.heappush(self.paths, [new_cost, new_path])
-
-    #     print("\n============PATHS============\n")
-    #     print(len(paths))
-    #     print("\n=============================\n")
-    #     return paths
-
-    # def __build_algo_table(self):
-    #     for zone in self.zones.values():
-    #         cost = float('inf')
-    #         if zone.name == self.graph.start.name:
-    #             cost = self.graph.get_zone_cost(zone.name)
-    #         self.algo_table.update({
-    #             f"{zone.name}": {
-    #                 "cost": cost,
-    #                 "parent": None
-    #             }
-    #         })
-
-    # def shortest_path(self):
-    #     visited_zones = set()
-    #     current_zone = self.graph.start
-    #     self.__build_algo_table()
-    #     heap = [
-    #         (self.algo_table[current_zone.name]['cost'], current_zone.name)
-    #     ]
-
-    #     while heap:
-    #         current_cost, current_zone = heapq.heappop(heap)
-    #         if current_zone in visited_zones:
-    #             continue
-    #         visited_zones.add(current_zone)
-    #         if self.zones[current_zone].name == self.graph.end.name:
-    #             break
-
-    #         neighbors = self.graph.get_neighbors(current_zone)
-    #         for neighbor in neighbors:
-    #             neighbor_cost = self.graph.get_zone_cost(neighbor.name)
-    #             cost = current_cost + neighbor_cost
-    #             if cost < self.algo_table[neighbor.name]['cost']:
-    #                 self.algo_table[neighbor.name]['cost'] = cost
-    #                 self.algo_table[neighbor.name]['parent'] = current_zone
-    #                 heapq.heappush(heap, (cost, neighbor.name))
-
-    #     if self.graph.end.name not in visited_zones:
-    #         print("Error: Zone permission denied!")
-    #         exit(1)
-    #     return self.__get_path()
-
-    # def __get_path(self):
-    #     path = []
-    #     current = self.graph.end.name
-    #     while current:
-    #         path.append(current)
-    #         current = self.algo_table[current]['parent']
-    #     return path[::-1]
-
+            if zone.startswith("connection:"):
+                connection = zone.split(':')[1]
+                key = (connection, turn)
+                self.conn_table[key] = self.conn_table.get(key, 0) + 1
+            else:
+                if zone not in [self.graph.end.name, self.graph.start.name]:
+                    key = (zone, turn)
+                    self.turn_table[key] = self.turn_table.get(key, 0) + 1
 
 """
 # Easy Level 2: Simple fork with two paths

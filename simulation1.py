@@ -155,9 +155,10 @@ class Simulator():
             path = self.dijkstra.shortest_path(drone)
             drone.path = path
             drone.current_zone = path[0]
-            # print("=========================")
-            # print(f"Drone: {drone.name}\nPath: {path}\n")
-            # print("=========================\n")
+            print("=========================")
+            print(f"Drone: {drone.name}\nPath: {path}\n")
+            print("=========================\n")
+        exit()
         while not all(d.is_finished for d in self.drones):
             moves = ""
             for drone in self.drones:
