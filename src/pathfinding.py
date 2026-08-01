@@ -20,66 +20,99 @@ class Pathfinder():
     def print_data(self):
         pass
 
+    def is_map_possible(self):
+        queue = [self.graph.start.name]
+        visited = set([self.graph.start.name])
+
+        while queue:
+            current = queue.pop(0)
+
+            if current == self.graph.end.name:
+                return True
+
+            for connection in self.graph.connections[current]:
+                neighbor = connection.get_next_zone(current)
+
+                if neighbor.zone_type == ZoneType.BLOCKED:
+                    continue
+
+                if neighbor.name not in visited:
+                    visited.add(neighbor.name)
+                    queue.append(neighbor.name)
+
+        return False
+
     def shortest_path(self, drone):
-        current = self.graph.start.name 
+        current = self.graph.start.name
         visited = set()
         turn = 0
         cost = self.graph.get_zone_cost(current)
         heap = [
             (cost, turn, current, [(current, turn)])
         ]
+
+        if not self.is_map_possible():
+            return None
+
         while heap:
             cost, turn, current, path = heapq.heappop(heap)
-
             if current == self.graph.end.name:
                 return path
+
             zone_key = (current, turn)
             if zone_key in visited:
                 continue
-            visited.add(zone_key)
 
+            visited.add(zone_key)
             connections = self.graph.connections[current]
+
             for connection in connections:
                 neighbor = connection.get_next_zone(current)
                 if neighbor.zone_type == ZoneType.BLOCKED:
                     continue
 
-                neighbor_cost = 1
+                neighbor_cost = self.graph.get_zone_cost(neighbor.name)
                 is_restricted = False
-                if neighbor.zone_type == ZoneType.RESTRICTED:
+                if neighbor_cost == 2:
                     is_restricted = True
-                    neighbor_cost = 2
 
                 new_turn = turn + neighbor_cost
-
                 if is_restricted:
-                    zone_capacity = self.turn_table.get((neighbor.name, turn + 1), 0)
-                    if zone_capacity:
+                    is_avai = self.turn_table.get((neighbor.name, turn + 1), 0)
+                    if is_avai:
                         continue
 
                 conn_available = True
                 for t in range(turn, new_turn):
-                    conn_capacity = self.conn_table.get((connection.name, t), 0)
-                    if conn_capacity >= connection.max_link_capacity:
+                    conn_capcty = self.conn_table.get((connection.name, t), 0)
+                    if conn_capcty >= connection.max_link_capacity:
                         conn_available = False
                         break
+
                 if not conn_available:
                     continue
 
+                # conn_capacity = self.conn_table.get(
+                # (connection.name, new_turn), 0)
+                # if conn_capacity >= connection.max_link_capacity:
+                #     continue
+
                 if neighbor.name != self.graph.end.name:
-                    zone_usage = self.turn_table.get((neighbor.name, new_turn), 0)
-                    if zone_usage >= neighbor.max_drones:
+                    zone_capacity = self.turn_table.get(
+                        (neighbor.name, new_turn), 0)
+                    if zone_capacity >= neighbor.max_drones:
                         continue
+
                 priority_zone = 0.0
                 if neighbor.zone_type == ZoneType.PRIORITY:
-                    priority_zone = 0.1
+                    priority_zone = -0.1
 
                 final_cost = new_turn + cost + priority_zone
                 new_path = path.copy()
                 if is_restricted:
-                    new_path.append((f"connection:{connection.name}", turn + 1))
-                new_path.append((neighbor.name, new_turn))
+                    new_path.append((f"conn:{connection.name}", turn + 1))
 
+                new_path.append((neighbor.name, new_turn))
                 heapq.heappush(heap, (
                     final_cost,
                     new_turn,
@@ -91,12 +124,15 @@ class Pathfinder():
             zone = self.graph.zones[current]
             if current == self.graph.start.name:
                 can_wait = True
+
             else:
-                zone_usage = self.turn_table.get(current, next_turn)
-                if zone_usage < zone.max_drones:
+                zone_capacity = self.turn_table.get((current, next_turn), 0)
+                if zone_capacity < zone.max_drones:
                     can_wait = True
+
                 else:
                     can_wait = False
+
             if can_wait:
                 new_path = path.copy()
                 new_path.append((current, next_turn))
@@ -111,15 +147,16 @@ class Pathfinder():
     def reserve_path(self, path):
         for i in range(len(path)):
             zone, turn = path[i]
-
-            if zone.startswith("connection:"):
+            if zone.startswith("conn:"):
                 connection = zone.split(':')[1]
                 key = (connection, turn)
                 self.conn_table[key] = self.conn_table.get(key, 0) + 1
+
             else:
                 if zone not in [self.graph.end.name, self.graph.start.name]:
                     key = (zone, turn)
                     self.turn_table[key] = self.turn_table.get(key, 0) + 1
+
 
 """
 # Easy Level 2: Simple fork with two paths

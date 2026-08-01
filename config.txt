@@ -1,43 +1,11 @@
-# TEST LEVEL: MINI DIAMOND
-# WARNING: Small testing graph with mixed zones and strict capacities.
-nb_drones: 5
+# Easy Level 1: Simple linear path
+nb_drones: 2
 
-# === NODES ===
 start_hub: start 0 0 [color=green]
+hub: waypoint1 1 0 [color=blue]
+hub: waypoint2 2 0 [color=blue zone=blocked]
+end_hub: goal 3 0 [color=red]
 
-# Layer 1: The Split
-hub: n1_top 1 1 [zone=priority color=gold max_drones=3]
-hub: n1_bot 1 -1 [zone=restricted color=red max_drones=1]
-
-# Layer 2: The Wide Middle
-hub: n2_top 2 2 [color=blue max_drones=5]
-hub: n2_mid 2 0 [color=black]  # BLOCKED ZONE (0 capacity)
-hub: n2_bot 2 -2 [zone=priority color=gold max_drones=2]
-
-# Layer 3: The Squeeze
-hub: n3_top 3 1 [zone=restricted color=red max_drones=1]
-hub: n3_bot 3 -1 [color=cyan]               # NORMAL ZONE (No drone limit)
-
-# Layer 4: The End
-end_hub: end 4 0 [color=rainbow]
-
-# === CONNECTIONS ===
-# Start to Layer 1
-connection: start-n1_top [max_link_capacity=3]
-connection: start-n1_bot [max_link_capacity=1]
-
-# Layer 1 to Layer 2
-connection: n1_top-n2_top [max_link_capacity=2]
-connection: n1_top-n2_mid [max_link_capacity=1]
-connection: n1_bot-n2_mid [max_link_capacity=1]
-connection: n1_bot-n2_bot [max_link_capacity=2]
-
-# Layer 2 to Layer 3
-connection: n2_top-n3_top [max_link_capacity=2]
-connection: n2_mid-n3_top [max_link_capacity=1]
-connection: n2_mid-n3_bot [max_link_capacity=1]
-connection: n2_bot-n3_bot [max_link_capacity=2]
-
-# Layer 3 to End
-connection: n3_top-end [max_link_capacity=2]
-connection: n3_bot-end [max_link_capacity=4]
+connection: start-waypoint1
+connection: waypoint1-waypoint2
+connection: waypoint2-goal

@@ -171,9 +171,9 @@ class Parsing():
         zone.zone_type = self.zone_type
         zone.color = self.color
         zone.max_drones = self.max_drones
-        if key == 'start_hub':
+        if key.strip() == 'start_hub':
             self.graph.start = zone
-        elif key == 'end_hub':
+        elif key.strip() == 'end_hub':
             self.graph.end = zone
         self.graph.zones[name] = zone
         self.zone_type = ZoneType.NORMAL
@@ -193,7 +193,7 @@ class Parsing():
             elif key.strip() in ['hub', 'start_hub', 'end_hub']:
                 self.zone_checker()
             else:
-                raise ParsingError("Invalid line order!")
+                raise ParsingError("Invalid rule name!")
             self.line_idx += 1
 
     # ------ Parse Connnection ------
@@ -246,6 +246,6 @@ class Parsing():
         except PermissionError:
             print("Error: File permission invalid!\n")
             exit(1)
-        # except Exception as e:
-        #     print(f"Error: [line {self.line_idx + 1}] {e}\n")
-        #     exit(1)
+        except Exception as e:
+            print(f"Error: [line {self.line_idx + 1}] {e}\n")
+            exit(1)

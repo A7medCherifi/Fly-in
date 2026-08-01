@@ -18,29 +18,28 @@ class Drones():
         self.next_zone = ""
         self.path = list()
         self.path_idx = 0
-        self.on_connection = False
 
 
 class Zone():
     def __init__(self):
-        self.name = str
+        self.name = ""
         self.coordinates = tuple()
         self.zone_type = ZoneType.NORMAL
-        self.color = str
-        self.max_drones = int
+        self.color = ""
+        self.max_drones = 1
         # self.neighbor = list()
         # self.connection = list()
-        self.is_available = True
-        self.current_drones_count = 0
-        self.zone_queue = list()
+        # self.is_available = True
+        # self.current_drones_count = 0
+        # self.zone_queue = list()
 
 
 class Connection():
     def __init__(self):
-        self.name = str
+        self.name = ""
         self.zone1 = Zone()
         self.zone2 = Zone()
-        self.max_link_capacity = int
+        self.max_link_capacity = 1
 
     def get_next_zone(self, name):
         if name == self.zone1.name:
@@ -57,8 +56,8 @@ class Graph():
         self.connections: Dict[str, List[Connection]] = {}
         self.turn_table = dict()
         self.conn_table = dict()
-        self.start = Zone
-        self.end = Zone
+        self.start = Zone()
+        self.end = Zone()
 
     def get_zone_cost(self, name):
         cost = 0

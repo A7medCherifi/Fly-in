@@ -30,20 +30,27 @@ class Simulator():
 
     def move_next_zone(self, drone):
         move = ""
+        if drone.current_zone == self.graph.start.name:
+            drone.current_zone = drone.next_zone
+            drone.next_zone = ""
+            return move
+
         if drone.current_zone != drone.next_zone:
-            next_zone = drone.next_zone
-            if next_zone.startswith('connection:'):
+            next_zone = drone.current_zone
+            if next_zone.startswith('conn:'):
                 next_zone = next_zone.split(':')[1]
 
             move = f"{drone.name}-{next_zone} "
 
         drone.current_zone = drone.next_zone
-        drone.path_idx += 1
+        # drone.path_idx += 1
         drone.next_zone = ""
         return move
 
     def start_simulation(self):
         self.create_drones()
+        # print(*[s.__dict__.items() for s in self.graph.zones.values()], sep='\n')
+        # exit()
         for drone in self.drones:
             path = self.dijkstra.shortest_path(drone)
             if not path:
@@ -57,7 +64,7 @@ class Simulator():
             # print("=========================")
             # print(f"Drone: {drone.name}\nPath:")
             # print(*path, sep='\n')
-            # print("=========================\n")
+            # print("=========================\n\n")
         while not all(d.is_finished for d in self.drones):
             moves = ""
             for drone in self.drones:
@@ -69,8 +76,9 @@ class Simulator():
 
                 if not drone.next_zone:
                     drone.is_finished = True
-                    # continue
 
                 move = self.move_next_zone(drone)
+                if not move:
+                    continue
                 moves += move
             print(moves)
