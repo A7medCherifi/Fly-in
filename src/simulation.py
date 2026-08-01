@@ -19,7 +19,7 @@ class Simulator():
             drone.next_zone = next_zone
             drone.path_idx += 1
         else:
-            next_zone = ""
+            drone.next_zone = ""
 
     def create_drones(self):
         for id in range(self.graph.nb_drones):
@@ -30,7 +30,7 @@ class Simulator():
 
     def move_next_zone(self, drone):
         move = ""
-        if drone.next_zone and drone.current_zone != drone.next_zone:
+        if drone.current_zone != drone.next_zone:
             next_zone = drone.next_zone
             if next_zone.startswith('connection:'):
                 next_zone = next_zone.split(':')[1]
@@ -69,7 +69,7 @@ class Simulator():
 
                 if not drone.next_zone:
                     drone.is_finished = True
-                    continue
+                    # continue
 
                 move = self.move_next_zone(drone)
                 moves += move
