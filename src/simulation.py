@@ -1,5 +1,4 @@
 from src.graph import Drones
-import heapq
 
 
 class Simulator():
@@ -43,19 +42,16 @@ class Simulator():
             move = f"{drone.name}-{next_zone} "
 
         drone.current_zone = drone.next_zone
-        # drone.path_idx += 1
         drone.next_zone = ""
         return move
 
     def start_simulation(self):
         self.create_drones()
-        # print(*[s.__dict__.items() for s in self.graph.zones.values()], sep='\n')
-        # exit()
         for drone in self.drones:
             path = self.dijkstra.shortest_path(drone)
             if not path:
                 print(f"Error: Could not find path for {drone.name}")
-                return
+                exit(1)
 
             drone.path = path
             self.dijkstra.reserve_path(path)

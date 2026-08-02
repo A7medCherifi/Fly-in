@@ -8,7 +8,7 @@ hub: D 2 -1 [color=blue zone=restricted]
 end_hub: E 3 0 [color=red]
 
 connection: A-B [max_link_capacity=1]
-connection: B-C
+connection: A-C
 connection: B-D
 connection: C-E
-connection: D-E
+connection: D-C

@@ -1,11 +1,60 @@
-# Easy Level 1: Simple linear path
-nb_drones: 2
+# Map with 11 Priority Zones and 10 Normal Zones (Strictly Separated Paths)
+nb_drones: 10
 
 start_hub: start 0 0 [color=green]
-hub: waypoint1 1 0 [color=blue]
-hub: waypoint2 2 0 [color=blue zone=blocked]
-end_hub: goal 3 0 [color=red]
 
-connection: start-waypoint1
-connection: waypoint1-waypoint2
-connection: waypoint2-goal
+# 10 Normal Zones Path
+hub: n1 1 0 [color=blue]
+hub: n2 2 0 [color=blue]
+hub: n3 3 0 [color=blue]
+hub: n4 4 0 [color=blue]
+hub: n5 5 0 [color=blue]
+hub: n6 6 0 [color=blue]
+hub: n7 7 0 [color=blue]
+hub: n8 8 0 [color=blue]
+hub: n9 9 0 [color=blue]
+hub: n10 10 0 [color=blue]
+
+# 11 Priority Zones Path
+hub: p1 1 2 [color=blue zone=priority]
+hub: p2 2 2 [color=blue zone=priority]
+hub: p3 3 2 [color=blue zone=priority]
+hub: p4 4 2 [color=blue zone=priority]
+hub: p5 5 2 [color=blue zone=priority]
+hub: p6 6 2 [color=blue zone=priority]
+hub: p7 7 2 [color=blue zone=priority]
+hub: p8 8 2 [color=blue zone=priority]
+hub: p9 9 2 [color=blue zone=priority]
+hub: p10 10 2 [color=blue zone=priority]
+hub: p11 11 2 [color=blue zone=priority]
+
+end_hub: goal 12 0 [color=red]
+
+# Connections from start
+connection: start-n1
+connection: start-p1
+
+# Normal Path Connections (Normal only to Normal)
+connection: n1-n2
+connection: n2-n3
+connection: n3-n4
+connection: n4-n5
+connection: n5-n6
+connection: n6-n7
+connection: n7-n8
+connection: n8-n9
+connection: n9-n10
+connection: n10-goal
+
+# Priority Path Connections (Priority only to Priority)
+connection: p1-p2
+connection: p2-p3
+connection: p3-p4
+connection: p4-p5
+connection: p5-p6
+connection: p6-p7
+connection: p7-p8
+connection: p8-p9
+connection: p9-p10
+connection: p10-p11
+connection: p11-goal

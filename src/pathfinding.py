@@ -121,27 +121,27 @@ class Pathfinder():
                 ))
 
             next_turn = turn + 1
-            zone = self.graph.zones[current]
-            if current == self.graph.start.name:
-                can_wait = True
+            new_path = path.copy()
+            new_path.append((current, next_turn))
+            heapq.heappush(heap, (
+                cost + 1,
+                next_turn,
+                current,
+                new_path
+            ))
+            # zone = self.graph.zones[current]
+            # if current == self.graph.start.name:
+            #     can_wait = True
 
-            else:
-                zone_capacity = self.turn_table.get((current, next_turn), 0)
-                if zone_capacity < zone.max_drones:
-                    can_wait = True
+            # else:
+            #     zone_capacity = self.turn_table.get((current, next_turn), 0)
+            #     if zone_capacity < zone.max_drones:
+            #         can_wait = True
 
-                else:
-                    can_wait = False
+            #     else:
+            #         can_wait = False
 
-            if can_wait:
-                new_path = path.copy()
-                new_path.append((current, next_turn))
-                heapq.heappush(heap, (
-                    cost + 1,
-                    next_turn,
-                    current,
-                    new_path
-                ))
+            # if can_wait:
         return None
 
     def reserve_path(self, path):

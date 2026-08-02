@@ -32,8 +32,8 @@ class Parsing():
             y = int(y)
         except ValueError:
             raise ParsingError("Coordinates should be Integers only!")
-        for e in self.graph.zones:
-            if self.graph.zones[e].coordinates == (x, y):
+        for z in self.graph.zones:
+            if self.graph.zones[z].coordinates == (x, y):
                 raise ParsingError("Duplicated coordinates are invalid!")
         return (x, y)
 
@@ -99,6 +99,14 @@ class Parsing():
             raise ParsingError("max_link_capacity Can't be Negative or 0!")
         self.max_link_capacity = int(value)
 
+    def check_start_end(self):
+        start = self.graph.start.name
+        end = self.graph.end.name
+        if not start:
+            raise ParsingError("There is not start hub, invalid graph!")
+        if not end:
+            raise ParsingError("There is not end hub, invalid graph!")
+
     # ========= Drones =========
     def nb_drones_parser(self):
         first_line = self.lines[self.line_idx]
@@ -121,25 +129,16 @@ class Parsing():
 
     # ========= Zones =========
     def zone_checker(self):
-        isstart = 0
-        isend = 0
         i = self.line_idx
         for line in self.lines[i:]:
             if line.strip().startswith('#') or not line.strip():
                 self.line_idx += 1
                 continue
             key, _, value = line.partition(':')
-            if key.strip() == 'start_hub':
-                isstart += 1
-            elif key.strip() == 'end_hub':
-                isend += 1
-            elif key.strip() != 'hub':
+            if key.strip() not in ['hub', 'end_hub', 'start_hub']:
                 break
             self.zone_parser(value.strip(), key)
             self.line_idx += 1
-        if isstart != 1 or isend != 1:
-            raise ParsingError(
-                "Must be one Start hub and End hub!")
 
     # ------ Parse Zone ------
     def zone_parser(self, line: str, key):
@@ -172,8 +171,16 @@ class Parsing():
         zone.color = self.color
         zone.max_drones = self.max_drones
         if key.strip() == 'start_hub':
+            if self.graph.start.name:
+                raise ParsingError("Start hub is duplicated!")
+            if zone.zone_type.value == 'blocked':
+                raise ParsingError("Start hub can't be Blocked!")
             self.graph.start = zone
         elif key.strip() == 'end_hub':
+            if self.graph.end.name:
+                raise ParsingError("End hub is duplicated!")
+            if zone.zone_type.value == 'blocked':
+                raise ParsingError("End hub can't be Blocked!")
             self.graph.end = zone
         self.graph.zones[name] = zone
         self.zone_type = ZoneType.NORMAL
@@ -236,10 +243,13 @@ class Parsing():
         try:
             with open(file_name, 'r') as f:
                 data = f.read()
+            if not data.strip():
+                raise ParsingError("Empty File!")
             self.lines = data.splitlines()
             self.nb_drones_parser()
             self.zone_checker()
             self.connection_checker()
+            self.check_start_end()
         except FileNotFoundError:
             print("Error: File Not found!\n")
             exit(1)
