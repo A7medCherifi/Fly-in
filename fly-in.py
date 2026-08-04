@@ -8,7 +8,7 @@ def main():
     graph = Graph()
     parsing = Parsing(graph)
     parsing.parse('config.txt')
-    # exit()
+    exit()
     path_finder = Pathfinder(graph)
     # path_finder.get_preferred_paths()
     simulator = Simulator(graph, path_finder)

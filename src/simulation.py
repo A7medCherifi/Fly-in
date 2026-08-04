@@ -52,7 +52,7 @@ class Simulator():
     def start_simulation(self):
         self.create_drones()
         for drone in self.drones:
-            path = self.dijkstra.shortest_path(drone)
+            path = self.dijkstra.shortest_path()
             if not path:
                 print(f"Error: Could not find path for {drone.name}")
                 exit(1)

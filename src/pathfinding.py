@@ -33,7 +33,7 @@ class Pathfinder():
 
         return False
 
-    def shortest_path(self, drone):
+    def shortest_path(self):
         current = self.graph.start.name
         visited = set()
         turn = 0
@@ -122,7 +122,7 @@ class Pathfinder():
         for i in range(len(path)):
             zone, turn = path[i]
             if zone.startswith("res_conn:") or zone.startswith("conn:"):
-                _, _, connection = zone.partition(':')
+                connection = zone.partition(':')[2]
                 key = (connection, turn)
                 self.conn_table[key] = self.conn_table.get(key, 0) + 1
 
