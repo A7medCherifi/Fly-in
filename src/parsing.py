@@ -16,6 +16,7 @@ class Parsing():
         self.max_drones = 1
         self.max_link_capacity = 1
         self.graph = graph
+        self.connections = 0
 
     # ======= Validation =======
     def valid_zone_name(self, name):
@@ -196,6 +197,7 @@ class Parsing():
                 continue
             key, _, value = line.partition(':')
             if key.strip() == 'connection':
+                self.connections += 1
                 self.connection_parser(value)
             elif key.strip() in ['hub', 'start_hub', 'end_hub']:
                 self.zone_checker()
@@ -250,12 +252,14 @@ class Parsing():
             self.zone_checker()
             self.connection_checker()
             self.check_start_end()
+            if self.connections < 1:
+                raise ParsingError("Must be at least a connection!")
         except FileNotFoundError:
             print("Error: File Not found!\n")
             exit(1)
         except PermissionError:
             print("Error: File permission invalid!\n")
             exit(1)
-        except Exception as e:
+        except (Exception, ParsingError) as e:
             print(f"Error: [line {self.line_idx + 1}] {e}\n")
             exit(1)

@@ -11,15 +11,6 @@ class Pathfinder():
         self.turn_table = graph.turn_table
         self.conn_table = graph.conn_table
 
-    def __build_algo_table(self):
-        pass
-
-    def get_neighbors(self, zone_key):
-        pass
-
-    def print_data(self):
-        pass
-
     def is_map_possible(self):
         queue = [self.graph.start.name]
         visited = set([self.graph.start.name])
@@ -83,23 +74,15 @@ class Pathfinder():
                         continue
 
                 conn_available = True
-                for t in range(turn, new_turn):
-                    conn_capcty = self.conn_table.get((connection.name, t), 0)
-                    if conn_capcty >= connection.max_link_capacity:
-                        conn_available = False
-                        break
-
-                if not conn_available:
+                conn_key = (connection.name, turn + 1)
+                conn_capcty = self.conn_table.get(conn_key, 0)
+                if conn_capcty >= connection.max_link_capacity:
+                    conn_available = False
                     continue
 
-                # conn_capacity = self.conn_table.get(
-                # (connection.name, new_turn), 0)
-                # if conn_capacity >= connection.max_link_capacity:
-                #     continue
-
                 if neighbor.name != self.graph.end.name:
-                    zone_capacity = self.turn_table.get(
-                        (neighbor.name, new_turn), 0)
+                    zone_key = (neighbor.name, new_turn)
+                    zone_capacity = self.turn_table.get(zone_key, 0)
                     if zone_capacity >= neighbor.max_drones:
                         continue
 
@@ -110,6 +93,9 @@ class Pathfinder():
                 final_cost = new_turn + cost + priority_zone
                 new_path = path.copy()
                 if is_restricted:
+                    new_path.append((f"res_conn:{connection.name}", turn + 1))
+
+                if conn_available and not is_restricted:
                     new_path.append((f"conn:{connection.name}", turn + 1))
 
                 new_path.append((neighbor.name, new_turn))
@@ -129,26 +115,14 @@ class Pathfinder():
                 current,
                 new_path
             ))
-            # zone = self.graph.zones[current]
-            # if current == self.graph.start.name:
-            #     can_wait = True
 
-            # else:
-            #     zone_capacity = self.turn_table.get((current, next_turn), 0)
-            #     if zone_capacity < zone.max_drones:
-            #         can_wait = True
-
-            #     else:
-            #         can_wait = False
-
-            # if can_wait:
         return None
 
     def reserve_path(self, path):
         for i in range(len(path)):
             zone, turn = path[i]
-            if zone.startswith("conn:"):
-                connection = zone.split(':')[1]
+            if zone.startswith("res_conn:") or zone.startswith("conn:"):
+                _, _, connection = zone.partition(':')
                 key = (connection, turn)
                 self.conn_table[key] = self.conn_table.get(key, 0) + 1
 
@@ -180,5 +154,22 @@ connection: Y-E
 connection: F-G
 connection: G-X
 connection: X-Y
+
+
+# Easy Level 2: Simple fork with two paths
+nb_drones: 40
+
+start_hub: A 0 0 [color=green]
+hub: B 1 0 [color=yellow max_drones=10 zone=priority]
+hub: C 2 1 [color=blue max_drones=3 zone=restricted]
+hub: D 2 -1 [color=blue max_drones=10]
+end_hub: E 3 0 [color=red]
+
+connection: A-B [max_link_capacity=3]
+connection: A-C [max_link_capacity=3]
+connection: B-D [max_link_capacity=5]
+connection: B-C [max_link_capacity=1]
+connection: C-E  [max_link_capacity=1]
+connection: D-C [max_link_capacity=2]
 
 """

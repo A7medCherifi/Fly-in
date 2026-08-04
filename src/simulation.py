@@ -29,19 +29,23 @@ class Simulator():
 
     def move_next_zone(self, drone):
         move = ""
-        if drone.current_zone == self.graph.start.name:
-            drone.current_zone = drone.next_zone
-            drone.next_zone = ""
-            return move
+        # if drone.current_zone == self.graph.start.name:
+        #     drone.current_zone = drone.next_zone
+        #     drone.next_zone = ""
+        #     return move
 
         if drone.current_zone != drone.next_zone:
-            next_zone = drone.current_zone
-            if next_zone.startswith('conn:'):
-                next_zone = next_zone.split(':')[1]
+            next_zone = drone.next_zone
+            if next_zone.startswith('res_conn:'):
+                next_zone = next_zone.partition(':')[2]
+            elif next_zone.startswith('conn:'):
+                drone.current_zone = drone.next_zone
+                self.assign_next_zone(drone)
+                next_zone = drone.next_zone
 
             move = f"{drone.name}-{next_zone} "
+            drone.current_zone = drone.next_zone
 
-        drone.current_zone = drone.next_zone
         drone.next_zone = ""
         return move
 
@@ -72,6 +76,7 @@ class Simulator():
 
                 if not drone.next_zone:
                     drone.is_finished = True
+                    continue
 
                 move = self.move_next_zone(drone)
                 if not move:
