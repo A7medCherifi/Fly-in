@@ -27,11 +27,6 @@ class Zone():
         self.zone_type = ZoneType.NORMAL
         self.color = ""
         self.max_drones = 1
-        # self.neighbor = list()
-        # self.connection = list()
-        # self.is_available = True
-        # self.current_drones_count = 0
-        # self.zone_queue = list()
 
 
 class Connection():
@@ -71,13 +66,3 @@ class Graph():
             cost = 1
 
         return cost
-
-    def get_neighbors(self, name):
-        neighbors = []
-        connections = self.connections[name]
-        for connection in connections:
-            neighbor_zone = connection.get_next_zone(name)
-            if neighbor_zone.zone_type == ZoneType.BLOCKED:
-                continue
-            neighbors.append(neighbor_zone)
-        return neighbors

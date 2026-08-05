@@ -52,7 +52,7 @@ class Parsing():
                 value = ZoneType(value)
                 zone += 1
             elif key == 'color':
-                if ' ' in value or not value:
+                if not value:
                     raise ParsingError("Invalid Color!")
                 color += 1
             elif key == 'max_drones':
@@ -68,7 +68,7 @@ class Parsing():
         if zone > 1 or color > 1 or drones > 1:
             raise ParsingError("Duplicated metadata values!")
         self.zone_type = data.get('zone', ZoneType.NORMAL)
-        self.color = data.get('color', None)
+        self.color = data.get('color', 'white')
         self.max_drones = data.get('max_drones', 1)
 
     def valid_connection_value(self, values):
