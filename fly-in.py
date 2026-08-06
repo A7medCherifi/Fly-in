@@ -4,14 +4,14 @@ from src.pathfinding import Pathfinder
 from src.simulation import Simulator
 
 
-def main():
-    graph = Graph()
-    parsing = Parsing(graph)
+def main() -> None:
+    graph: Graph = Graph()
+    parsing: Parsing = Parsing(graph)
     parsing.parse('config.txt')
 
     try:
-        path_finder = Pathfinder(graph)
-        simulator = Simulator(graph, path_finder)
+        path_finder: Pathfinder = Pathfinder(graph)
+        simulator: Simulator = Simulator(graph, path_finder)
         simulator.start_simulation()
     except Exception as e:
         print(f"Error: {e}\n")

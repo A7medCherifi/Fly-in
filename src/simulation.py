@@ -1,4 +1,5 @@
-from src.graph import Drones
+from src.graph import Drones, Graph
+from src.pathfinding import Pathfinder
 from rich import print as rprint
 from rich.text import Text
 
@@ -6,59 +7,59 @@ import webcolors
 
 
 class Simulator():
-    def __init__(self, graph, path_finder) -> None:
-        self.graph = graph
-        self.dijkstra = path_finder
-        self.drones = list()
-    
-    def set_rainbow_zone(self, next_zone):
-        colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
-        text_res = Text()
+    def __init__(self, graph: Graph, path_finder: Pathfinder) -> None:
+        self.graph: Graph = graph
+        self.dijkstra: Pathfinder = path_finder
+        self.drones: list[Drones] = list()
+
+    def set_rainbow_zone(self, next_zone: str) -> None:
+        colors: list[str] = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
+        text_res: Text = Text()
         
         for i, e in enumerate(next_zone):
-            color = webcolors.name_to_hex(colors[i % len(colors)])
+            color: str = webcolors.name_to_hex(colors[i % len(colors)])
             text_res.append(e, style=color)
 
-        next_zone_print = text_res
+        next_zone_print: Text = text_res
         rprint(next_zone_print, end='')
             
-    def set_color_zone(self, next_zone, color_name):
+    def set_color_zone(self, next_zone: str, color_name: str) -> None:
         if color_name == 'rainbow':
             self.set_rainbow_zone(next_zone)
             return
         try:
-            color = webcolors.name_to_hex(color_name)
+            color: str = webcolors.name_to_hex(color_name)
         except ValueError:
             color = 'white'
         rprint(f"[{color}]{next_zone}[/{color}]", end='')
 
-    def assign_next_zone(self, drone):
-        current = drone.current_zone
+    def assign_next_zone(self, drone: Drones) -> None:
+        current: str = drone.current_zone
         if current == self.graph.end.name:
             drone.next_zone = ""
             return
-        idx = drone.path_idx
+        idx: int = drone.path_idx
         if idx < len(drone.path):
-            next_zone = drone.path[idx][0]
+            next_zone: str = drone.path[idx][0]
             drone.next_zone = next_zone
             drone.path_idx += 1
         else:
             drone.next_zone = ""
 
-    def create_drones(self):
+    def create_drones(self) -> None:
         for id in range(self.graph.nb_drones):
-            drone = Drones()
+            drone: Drones = Drones()
             drone.id = id + 1
             drone.name = f"D{id + 1}"
             self.drones.append(drone)
 
-    def move_next_zone(self, drone):
+    def move_next_zone(self, drone: Drones) -> None:
         if drone.current_zone == drone.next_zone:
             drone.next_zone = ""
             return
 
-        next_zone = drone.next_zone
-        is_restricted = False
+        next_zone: str = drone.next_zone
+        is_restricted: bool = False
         
         if next_zone.startswith('res_conn:'):
             next_zone = next_zone.partition(':')[2]
@@ -70,7 +71,7 @@ class Simulator():
             next_zone = drone.next_zone
 
         if not is_restricted:
-            color_name = self.graph.zones[next_zone].color
+            color_name: str = self.graph.zones[next_zone].color
             rprint(drone.name, end='-')
             self.set_color_zone(next_zone, color_name)
 
@@ -87,10 +88,10 @@ class Simulator():
         drone.current_zone = drone.next_zone
         drone.next_zone = ""
 
-    def start_simulation(self):
+    def start_simulation(self) -> None:
         self.create_drones()
         for drone in self.drones:
-            path = self.dijkstra.shortest_path()
+            path: list[tuple[str, int]] | None = self.dijkstra.shortest_path()
             if not path:
                 print(f"Error: Could not find path for {drone.name}")
                 exit(1)

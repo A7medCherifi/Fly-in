@@ -1,4 +1,5 @@
-from src.graph import Connection, Zone, ZoneType
+from src.graph import Connection, Graph, Zone, ZoneType
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class ParsingError(Exception):
@@ -6,20 +7,20 @@ class ParsingError(Exception):
 
 
 class Parsing():
-    def __init__(self, graph):
-        self.line_idx = 0
+    def __init__(self, graph: Graph) -> None:
+        self.line_idx: int = 0
 
-        self.i = 1
-        self.lines = None
-        self.zone_type = ZoneType.NORMAL
-        self.color = "white"
-        self.max_drones = 1
-        self.max_link_capacity = 1
-        self.graph = graph
-        self.connections = 0
+        self.i: int = 1
+        self.lines: Optional[List[str]] = list()
+        self.zone_type: ZoneType = ZoneType.NORMAL
+        self.color: str = "white"
+        self.max_drones: int = 1
+        self.max_link_capacity: int = 1
+        self.graph: Graph = graph
+        self.connections: int = 0
 
     # ======= Validation =======
-    def valid_zone_name(self, name):
+    def valid_zone_name(self, name: str) -> str:
         name = name.strip()
         if '-' in name:
             raise ParsingError("Invalid Name!")
@@ -27,22 +28,23 @@ class Parsing():
             raise ParsingError("Duplicated zone name!")
         return name
 
-    def valid_coordinates(self, x, y):
+    def valid_coordinates(self, x: str, y: str) -> Tuple[int, int]:
         try:
-            x = int(x)
-            y = int(y)
+            x1: int = int(x)
+            y1: int = int(y)
         except ValueError:
             raise ParsingError("Coordinates should be Integers only!")
         for z in self.graph.zones:
-            if self.graph.zones[z].coordinates == (x, y):
+            if self.graph.zones[z].coordinates == (x1, y1):
                 raise ParsingError("Duplicated coordinates are invalid!")
-        return (x, y)
+        return (x1, y1)
 
-    def valid_metadata(self, metadata):
-        data = dict()
+    def valid_metadata(self, metadata: str) -> None:
+        data: Dict[str, Any] = dict()
         zone = color = drones = 0
-        array = metadata.split()
+        array: List[str] = metadata.split()
         for element in array:
+            value: Any = ""
             key, _, value = element.strip().partition('=')
             if '=' in value or ']' in value:
                 raise ParsingError(f"Invalid Metadata Value {value}!")
@@ -71,10 +73,10 @@ class Parsing():
         self.color = data.get('color', 'white')
         self.max_drones = data.get('max_drones', 1)
 
-    def valid_connection_value(self, values):
+    def valid_connection_value(self, values: str) -> Tuple[str, str]:
         if not values or ' ' in values:
             raise ParsingError("Invalid Connection!")
-        data = values.strip().split('-')
+        data: List[str] = values.strip().split('-')
         if len(data) != 2:
             raise ParsingError("Invalid Connection!")
         zone1, zone2 = data
@@ -88,9 +90,10 @@ class Parsing():
                     raise ParsingError("Duplicate connection!")
         return (zone1.strip(), zone2.strip())
 
-    def valid_connection_metadata(self, metadata):
+    def valid_connection_metadata(self, metadata: str) -> None:
+        value: Any = ""
         key, _, value = metadata.partition('=')
-        size = metadata.split()
+        size: List[str] = metadata.split()
         if len(size) > 1:
             raise ParsingError("only max_link_capacity key valid")
         if 'max_link_capacity' != key:
@@ -103,20 +106,21 @@ class Parsing():
             raise ParsingError("max_link_capacity Can't be Negative or 0!")
         self.max_link_capacity = int(value)
 
-    def check_start_end(self):
-        start = self.graph.start.name
-        end = self.graph.end.name
+    def check_start_end(self) -> None:
+        start: str = self.graph.start.name
+        end: str = self.graph.end.name
         if not start:
             raise ParsingError("There is not start hub, invalid graph!")
         if not end:
             raise ParsingError("There is not end hub, invalid graph!")
 
     # ========= Drones =========
-    def nb_drones_parser(self):
-        first_line = self.lines[self.line_idx]
+    def nb_drones_parser(self) -> None:
+        first_line: str = self.lines[self.line_idx]
         while first_line.strip().startswith('#') or not first_line.strip():
             self.line_idx += 1
             first_line = self.lines[self.line_idx]
+        value: Any = ""
         key, _, value = first_line.partition(':')
         if key.strip() != 'nb_drones':
             raise ParsingError("First line should be for 'nb_drones'! should be: nb_drones: <int>")
@@ -132,8 +136,8 @@ class Parsing():
         self.line_idx += 1
 
     # ========= Zones =========
-    def zone_checker(self):
-        i = self.line_idx
+    def zone_checker(self) -> None:
+        i: int = self.line_idx
         for line in self.lines[i:]:
             if line.strip().startswith('#') or not line.strip():
                 self.line_idx += 1
@@ -151,17 +155,17 @@ class Parsing():
             self.line_idx += 1
 
     # ------ Parse Zone ------
-    def zone_parser(self, line: str, key):
-        zone = Zone()
+    def zone_parser(self, line: str, key: str) -> None:
+        zone: Zone = Zone()
         if '#' in line:
             line, _, _ = line.partition('#')
-        values = line.strip().split()
+        values: List[str] = line.strip().split()
         if len(values) < 3:
             raise ParsingError(f"Invalid Values of {key}, Should be <zone> <x> <y>!")
         name, x, y = values[0], values[1], values[2]
         name = self.valid_zone_name(name)
-        coordinates = self.valid_coordinates(x, y)
-        metadata = ""
+        coordinates: Tuple[int, int] = self.valid_coordinates(x, y)
+        metadata: str = ""
         if len(values) > 3:
             metadata = " ".join(values[3:])
             if '[' in metadata:
@@ -202,8 +206,8 @@ class Parsing():
         self.max_drones = 1
 
     # ========= Connections =========
-    def connection_checker(self):
-        i = self.line_idx
+    def connection_checker(self) -> None:
+        i: int = self.line_idx
         for line in self.lines[i:]:
             if line.strip().startswith('#') or not line.strip():
                 self.line_idx += 1
@@ -223,14 +227,14 @@ class Parsing():
             self.line_idx += 1
 
     # ------ Parse Connnection ------
-    def connection_parser(self, line):
-        connection = Connection()
+    def connection_parser(self, line: str) -> None:
+        connection: Connection = Connection()
         if '#' in line:
             line, _, _ = line.partition('#')
-        metadata = ""
-        values = line.strip().split()
+        metadata: str = ""
+        values: List[str] = line.strip().split()
         if len(values) < 1:
-            raise ParsingError(f"Invalid connection, Should be <connection>!")
+            raise ParsingError("Invalid connection, Should be <connection>!")
         name1, name2 = self.valid_connection_value(values[0])
         if len(values) > 1:
             metadata = ' '.join(values[1:])
@@ -249,8 +253,8 @@ class Parsing():
 
         if metadata:
             self.valid_connection_metadata(metadata)
-        zone1 = self.graph.zones[name1]
-        zone2 = self.graph.zones[name2]
+        zone1: Zone = self.graph.zones[name1]
+        zone2: Zone = self.graph.zones[name2]
         connection.name = f"{name1}-{name2}"
         connection.zone1 = zone1
         connection.zone2 = zone2
@@ -264,10 +268,10 @@ class Parsing():
         self.graph.connections[name2].append(connection)
         self.max_link_capacity = 1
 
-    def parse(self, file_name: str):
+    def parse(self, file_name: str) -> None:
         try:
             with open(file_name, 'r') as f:
-                data = f.read()
+                data: str = f.read()
             if not data.strip():
                 raise ParsingError("Empty File!")
             self.lines = data.splitlines()
