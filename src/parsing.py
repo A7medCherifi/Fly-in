@@ -12,7 +12,7 @@ class Parsing():
         self.i = 1
         self.lines = None
         self.zone_type = ZoneType.NORMAL
-        self.color = None
+        self.color = "white"
         self.max_drones = 1
         self.max_link_capacity = 1
         self.graph = graph
@@ -44,8 +44,8 @@ class Parsing():
         array = metadata.split()
         for element in array:
             key, _, value = element.strip().partition('=')
-            if '=' in value:
-                raise ParsingError("Invalid Metadata Value!")
+            if '=' in value or ']' in value:
+                raise ParsingError(f"Invalid Metadata Value {value}!")
             if key not in ['zone', 'color', 'max_drones']:
                 raise ParsingError("Invalid Metadata Type!")
             if key == 'zone':
@@ -90,6 +90,9 @@ class Parsing():
 
     def valid_connection_metadata(self, metadata):
         key, _, value = metadata.partition('=')
+        size = metadata.split()
+        if len(size) > 1:
+            raise ParsingError("only max_link_capacity key valid")
         if 'max_link_capacity' != key:
             raise ParsingError("Invalid Metadata!")
         try:
@@ -116,7 +119,7 @@ class Parsing():
             first_line = self.lines[self.line_idx]
         key, _, value = first_line.partition(':')
         if key.strip() != 'nb_drones':
-            raise ParsingError("First line should be for 'nb_drones'!")
+            raise ParsingError("First line should be for 'nb_drones'! should be: nb_drones: <int>")
         if '#' in value:
             value, _, _ = value.partition('#')
         try:
@@ -136,34 +139,44 @@ class Parsing():
                 self.line_idx += 1
                 continue
             key, _, value = line.partition(':')
-            if key.strip() not in ['hub', 'end_hub', 'start_hub']:
+            if key.strip() == 'nb_drones':
+                raise ParsingError("Duplicated nb_drones rule!")
+            if key.strip().startswith("connection"):
                 break
+            if key.strip() not in ['hub', 'end_hub', 'start_hub']:
+                raise ParsingError("Invalid rule name! should be hub: <zone> <x> <y>")
+            if not value.startswith(' '):
+                raise ParsingError("You should seperate zone from the rule!")
             self.zone_parser(value.strip(), key)
             self.line_idx += 1
 
     # ------ Parse Zone ------
     def zone_parser(self, line: str, key):
         zone = Zone()
-        values = ""
-        metadata = ""
-        if '[' in line:
-            line, _, metadata = line.partition('[')
-            if ']' in metadata:
-                metadata, _, trash = metadata.partition(']')
-                if not metadata.strip():
-                    raise ParsingError("Empty Metadata!")
-                if trash and not trash.strip().startswith('#'):
-                    raise ParsingError("Invalid Input after Metadata!")
-            else:
-                raise ParsingError("Forget to close Metadata section!")
-        elif '#' in line:
+        if '#' in line:
             line, _, _ = line.partition('#')
         values = line.strip().split()
-        if len(values) != 3:
-            raise ParsingError("Invalid Values!")
-        name, x, y = values
+        if len(values) < 3:
+            raise ParsingError(f"Invalid Values of {key}, Should be <zone> <x> <y>!")
+        name, x, y = values[0], values[1], values[2]
         name = self.valid_zone_name(name)
         coordinates = self.valid_coordinates(x, y)
+        metadata = ""
+        if len(values) > 3:
+            metadata = " ".join(values[3:])
+            if '[' in metadata:
+                metadata = metadata.partition('[')[2]
+                if ']' in metadata:
+                    metadata, _, trash = metadata.rpartition(']')
+                    if not metadata.strip():
+                        raise ParsingError("Empty Metadata!")
+                    if trash and not trash.strip().startswith('#'):
+                        raise ParsingError("Invalid Input after Metadata closed!")
+                else:
+                    raise ParsingError("Forget to close Metadata section!")
+            else:
+                raise ParsingError("Invalid Metadata, should be inside of [...]!")
+
         if metadata:
             self.valid_metadata(metadata)
         zone.name = name
@@ -185,7 +198,7 @@ class Parsing():
             self.graph.end = zone
         self.graph.zones[name] = zone
         self.zone_type = ZoneType.NORMAL
-        self.color = None
+        self.color = "white"
         self.max_drones = 1
 
     # ========= Connections =========
@@ -198,32 +211,42 @@ class Parsing():
             key, _, value = line.partition(':')
             if key.strip() == 'connection':
                 self.connections += 1
+                if not value.startswith(' '):
+                    raise ParsingError("You should seperate connection from the rule!")
                 self.connection_parser(value)
             elif key.strip() in ['hub', 'start_hub', 'end_hub']:
                 self.zone_checker()
+            elif key.strip() == 'nb_drones':
+                raise ParsingError("Duplicated nb_drones rule!")
             else:
-                raise ParsingError("Invalid rule name!")
+                raise ParsingError("Invalid rule name! should be: connection: <connection>")
             self.line_idx += 1
 
     # ------ Parse Connnection ------
     def connection_parser(self, line):
         connection = Connection()
-        values = ""
-        metadata = ""
-        if '[' in line:
-            line, _, metadata = line.partition('[')
-            if ']' in metadata:
-                metadata, _, trash = metadata.partition(']')
-                if not metadata.strip():
-                    raise ParsingError("Empty Metadata!")
-                if trash and not trash.strip().startswith('#'):
-                    raise ParsingError("Invalid Input after Metadata!")
-            else:
-                raise ParsingError("Forget to close Metadata section!")
-        elif '#' in line:
+        if '#' in line:
             line, _, _ = line.partition('#')
-        values = line.strip()
-        name1, name2 = self.valid_connection_value(values)
+        metadata = ""
+        values = line.strip().split()
+        if len(values) < 1:
+            raise ParsingError(f"Invalid connection, Should be <connection>!")
+        name1, name2 = self.valid_connection_value(values[0])
+        if len(values) > 1:
+            metadata = ' '.join(values[1:])
+            if '[' in metadata:
+                metadata = metadata.partition('[')[2]
+                if ']' in metadata:
+                    metadata, _, trash = metadata.partition(']')
+                    if not metadata.strip():
+                        raise ParsingError("Empty Metadata!")
+                    if trash and not trash.strip().startswith('#'):
+                        raise ParsingError("Invalid Input after Metadata closed!")
+                else:
+                    raise ParsingError("Forget to close Metadata section!")
+            else:
+                raise ParsingError("Invalid Metadata, should be inside of [...]!")
+
         if metadata:
             self.valid_connection_metadata(metadata)
         zone1 = self.graph.zones[name1]

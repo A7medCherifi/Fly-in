@@ -12,8 +12,12 @@ class Pathfinder():
         self.conn_table = graph.conn_table
 
     def is_map_possible(self):
-        queue = [self.graph.start.name]
-        visited = set([self.graph.start.name])
+        start = self.graph.start.name
+        queue = [start]
+        visited = set([start])
+        
+        if not self.graph.connections.get(start, None):
+            raise Exception("Start zone dont have a connection!")
 
         while queue:
             current = queue.pop(0)
@@ -21,7 +25,7 @@ class Pathfinder():
             if current == self.graph.end.name:
                 return True
 
-            for connection in self.graph.connections[current]:
+            for connection in self.graph.connections.get(current, ""):
                 neighbor = connection.get_next_zone(current)
 
                 if neighbor.zone_type == ZoneType.BLOCKED:

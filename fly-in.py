@@ -8,11 +8,14 @@ def main():
     graph = Graph()
     parsing = Parsing(graph)
     parsing.parse('config.txt')
-    # exit()
-    path_finder = Pathfinder(graph)
-    # path_finder.get_preferred_paths()
-    simulator = Simulator(graph, path_finder)
-    simulator.start_simulation()
+
+    try:
+        path_finder = Pathfinder(graph)
+        simulator = Simulator(graph, path_finder)
+        simulator.start_simulation()
+    except Exception as e:
+        print(f"Error: {e}\n")
+        exit(1)
 
 
 if __name__ == "__main__":

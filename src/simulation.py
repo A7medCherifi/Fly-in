@@ -23,7 +23,7 @@ class Simulator():
         rprint(next_zone_print, end='')
             
     def set_color_zone(self, next_zone, color_name):
-        if color_name.strip() == 'rainbow':
+        if color_name == 'rainbow':
             self.set_rainbow_zone(next_zone)
             return
         try:
@@ -63,7 +63,7 @@ class Simulator():
         if next_zone.startswith('res_conn:'):
             next_zone = next_zone.partition(':')[2]
             is_restricted = True
-            
+
         elif next_zone.startswith('conn:'):
             drone.current_zone = drone.next_zone
             self.assign_next_zone(drone)
@@ -113,4 +113,5 @@ class Simulator():
                     continue
 
                 self.move_next_zone(drone)
-            print()
+            if not all(d.is_finished for d in self.drones):
+                print()
