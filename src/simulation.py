@@ -60,7 +60,7 @@ class Simulator():
 
         next_zone: str = drone.next_zone
         is_restricted: bool = False
-        
+
         if next_zone.startswith('res_conn:'):
             next_zone = next_zone.partition(':')[2]
             is_restricted = True

@@ -1,20 +1,32 @@
 from src.graph import Graph, ZoneType, Zone, Connection
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 import heapq
 
 
 class Pathfinder():
+    """Finds the shortest path for a drone from start to end zone"""
+
     def __init__(self, graph: Graph) -> None:
+        """Set up the pathfinder for a given graph.
+
+        Args:
+            graph: The Graph to search paths on.
+        """
         self.graph: Graph = graph
         self.zones: Dict[str, Zone] = graph.zones
         self.turn_table: Dict[Tuple[str, int], int] = graph.turn_table
         self.conn_table: Dict[Tuple[str, int], int] = graph.conn_table
 
     def is_map_possible(self) -> bool:
+        """Check if the end zone can be reached from the start zone
+
+        Returns:
+            True if a path exists from start to end, False if not.
+        """
         start: str = self.graph.start.name
         queue: List[str] = [start]
         visited: Set[str] = set([start])
-        
+
         if not self.graph.connections.get(start, None):
             raise Exception("Start zone dont have a connection!")
 
@@ -37,6 +49,11 @@ class Pathfinder():
         return False
 
     def shortest_path(self) -> Optional[List[Tuple[str, int]]]:
+        """Find the shortest path from start to end zone for one drone.
+
+        Returns:
+            A list of (zone, turn) path.
+        """
         current: str = self.graph.start.name
         visited: Set[Tuple[str, int]] = set()
         turn: int = 0
@@ -51,7 +68,7 @@ class Pathfinder():
         while heap:
             cost, turn, current, path = heapq.heappop(heap)
             if current == self.graph.end.name:
-                return path
+                break
 
             zone_key: Tuple[str, int] = (current, turn)
             if zone_key in visited:
@@ -119,9 +136,15 @@ class Pathfinder():
                 new_path
             ))
 
-        return None
+        return path
 
     def reserve_path(self, path: List[Tuple[str, int]]) -> None:
+        """Mark a path as used so future drones avoid the same zones
+        at spesific turnes.
+
+        Args:
+            path: The path to reserve
+        """
         for i in range(len(path)):
             zone, turn = path[i]
             if zone.startswith("res_conn:") or zone.startswith("conn:"):
