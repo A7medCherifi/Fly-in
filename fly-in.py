@@ -1,13 +1,24 @@
-from src.graph import Graph
-from src.parsing import Parsing
-from src.pathfinding import Pathfinder
-from src.simulation import Simulator
+from graph import Graph
+from parsing import Parsing
+from pathfinding import Pathfinder
+from simulation import Simulator
+
+import argparse
 
 
 def main() -> None:
+    """
+    Parse the map file, set up the pathfinder and simulator
+    and run the simulation
+    """
+    argument = argparse.ArgumentParser()
+    argument.add_argument("config_text")
+
+    args = argument.parse_args()
+
     graph: Graph = Graph()
     parsing: Parsing = Parsing(graph)
-    parsing.parse('config.txt')
+    parsing.parse(args.config_text)
 
     try:
         path_finder: Pathfinder = Pathfinder(graph)

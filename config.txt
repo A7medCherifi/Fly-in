@@ -1,14 +1,11 @@
-# Medium Level 1: Dead end trap - drones might get stuck
-nb_drones: 5
+# Easy Level 3: Basic capacity management
+nb_drones: 4
 
 start_hub: start 0 0 [color=green]
-hub: junction 1 0 [color=yellow max_drones=2 zone=blocked]
-hub: dead_end 1 1 [color=red]
-hub: correct_path 2 0 [color=blue]
-hub: intermediate 3 0 [color=blue]
-end_hub: goal 4 0 [color=green]
+hub: bottleneck 1 0 [color=orange max_drones=2]
+hub: wide_area 2 0 [color=blue max_drones=3]
+end_hub: goal 3 0 [color=red]
 
-connection: dead_end-start
-connection: dead_end-correct_path
-connection: correct_path-intermediate
-connection: intermediate-dead_end
+connection: start-bottleneck [max_link_capacity=4]
+connection: bottleneck-wide_area [max_link_capacity=4]
+connection: wide_area-goal [max_link_capacity=4]
