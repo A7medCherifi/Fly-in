@@ -346,7 +346,7 @@ should be: nb_drones: <int>")
             with open(file_name, 'r') as f:
                 data: str = f.read()
             if not data.strip():
-                raise ParsingError("Empty File!")
+                raise ParsingError("Empty File. First create nb_drones!")
             self.lines = data.splitlines()
             self.nb_drones_parser()
             self.zone_checker()
