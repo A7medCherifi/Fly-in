@@ -334,6 +334,7 @@ should be: nb_drones: <int>")
         self.graph.adjacency[name1].append(connection)
         self.graph.adjacency[name2].append(connection)
         self.graph.connections[f"{name1}-{name2}"] = connection
+        self.graph.connections[f"{name2}-{name1}"] = connection
         self.max_link_capacity = 1
 
     def parse(self, file_name: str) -> None:

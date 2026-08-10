@@ -94,3 +94,14 @@ class Graph():
             cost = 1
 
         return cost
+    
+    def get_neighbors(self, current, past_turn, visited):
+        neighbors = []
+        for connection in self.adjacency[current]:
+            neighbor = connection.get_next_zone(current)
+            if (neighbor.name, past_turn) in visited:
+                continue
+            if neighbor.zone_type == ZoneType.BLOCKED:
+                continue
+            neighbors.append(neighbor)
+        return neighbors

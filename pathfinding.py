@@ -75,12 +75,10 @@ class Pathfinder():
                 continue
 
             visited.add(zone_key)
-            connections: List[Connection] = self.graph.adjacency[current]
+            connections: List[Zone] = self.graph.get_neighbors(current, turn - 1, visited)
 
-            for connection in connections:
-                neighbor = connection.get_next_zone(current)
-                if neighbor.zone_type == ZoneType.BLOCKED:
-                    continue
+            for neighbor in connections:
+                connection = self.graph.connections[f"{current}-{neighbor.name}"]
 
                 neighbor_cost: int = self.graph.get_zone_cost(neighbor.name)
                 is_restricted: bool = False
@@ -108,10 +106,11 @@ class Pathfinder():
                         continue
 
                 priority_zone: float = 0.0
-                if neighbor.zone_type == ZoneType.PRIORITY:
-                    priority_zone = -0.1
+                if len(connections) > 1:
+                    if neighbor.zone_type == ZoneType.PRIORITY:
+                        priority_zone = -0.1
 
-                final_cost: float = new_turn + cost + priority_zone
+                final_cost: float = neighbor_cost + cost + priority_zone
                 new_path: List[Tuple[str, int]] = path.copy()
                 if is_restricted:
                     new_path.append((f"res_conn:{connection.name}", turn + 1))
@@ -131,7 +130,7 @@ class Pathfinder():
             new_path = path.copy()
             new_path.append((current, next_turn))
             heapq.heappush(heap, (
-                cost + 1,
+                cost + 1.1,
                 next_turn,
                 current,
                 new_path

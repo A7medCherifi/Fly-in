@@ -1,3 +1,4 @@
+# Easy Level 2: Simple fork with two paths
 nb_drones: 40
 
 start_hub: A 0 0 [color=green]
