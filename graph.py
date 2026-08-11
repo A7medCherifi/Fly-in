@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
 
 class ZoneType(Enum):
@@ -94,11 +94,12 @@ class Graph():
             cost = 1
 
         return cost
-    
-    def get_neighbors(self, current, past_turn, visited):
-        neighbors = []
+
+    def get_neighbors(self, current: str, past_turn: int,
+     visited: Set[Tuple[str, int]]) -> List[Zone]:
+        neighbors: List[Zone] = []
         for connection in self.adjacency[current]:
-            neighbor = connection.get_next_zone(current)
+            neighbor: Zone = connection.get_next_zone(current)
             if (neighbor.name, past_turn) in visited:
                 continue
             if neighbor.zone_type == ZoneType.BLOCKED:

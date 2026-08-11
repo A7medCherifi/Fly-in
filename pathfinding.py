@@ -1,4 +1,4 @@
-from graph import Graph, ZoneType, Zone, Connection
+from graph import Graph, ZoneType, Zone
 from typing import Dict, List, Optional, Set, Tuple
 import heapq
 
@@ -75,17 +75,19 @@ class Pathfinder():
                 continue
 
             visited.add(zone_key)
-            connections: List[Zone] = self.graph.get_neighbors(current, turn - 1, visited)
+            neighbors: List[Zone] = self.graph.get_neighbors(
+                current, turn - 1, visited)
 
-            for neighbor in connections:
-                connection = self.graph.connections[f"{current}-{neighbor.name}"]
+            for neighbor in neighbors:
+                connection = self.graph.connections[
+                    f"{current}-{neighbor.name}"]
 
                 neighbor_cost: int = self.graph.get_zone_cost(neighbor.name)
                 is_restricted: bool = False
                 if neighbor_cost == 2:
                     is_restricted = True
 
-                new_turn: int = turn + neighbor_cost
+                next_cost: int = turn + neighbor_cost
                 if is_restricted:
                     is_avai: int = self.turn_table.get(
                         (neighbor.name, turn + 1), 0)
@@ -100,17 +102,17 @@ class Pathfinder():
                     continue
 
                 if neighbor.name != self.graph.end.name:
-                    zone_key = (neighbor.name, new_turn)
+                    zone_key = (neighbor.name, next_cost)
                     zone_capacity: int = self.turn_table.get(zone_key, 0)
                     if zone_capacity >= neighbor.max_drones:
                         continue
 
                 priority_zone: float = 0.0
-                if len(connections) > 1:
+                if len(neighbors) > 1:
                     if neighbor.zone_type == ZoneType.PRIORITY:
                         priority_zone = -0.1
 
-                final_cost: float = neighbor_cost + cost + priority_zone
+                final_cost: float = next_cost + cost + priority_zone
                 new_path: List[Tuple[str, int]] = path.copy()
                 if is_restricted:
                     new_path.append((f"res_conn:{connection.name}", turn + 1))
@@ -118,10 +120,10 @@ class Pathfinder():
                 if conn_available and not is_restricted:
                     new_path.append((f"conn:{connection.name}", turn + 1))
 
-                new_path.append((neighbor.name, new_turn))
+                new_path.append((neighbor.name, next_cost))
                 heapq.heappush(heap, (
                     final_cost,
-                    new_turn,
+                    next_cost,
                     neighbor.name,
                     new_path
                 ))
@@ -130,7 +132,7 @@ class Pathfinder():
             new_path = path.copy()
             new_path.append((current, next_turn))
             heapq.heappush(heap, (
-                cost + 1.1,
+                cost + 1,
                 next_turn,
                 current,
                 new_path
