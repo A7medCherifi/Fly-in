@@ -96,7 +96,17 @@ class Graph():
         return cost
 
     def get_neighbors(self, current: str, past_turn: int,
-     visited: Set[Tuple[str, int]]) -> List[Zone]:
+                      visited: Set[Tuple[str, int]]) -> List[Zone]:
+        """Return the neighbors of the current zone.
+
+        Args:
+            current: current zone name
+            past_turn: past turn number
+            visited: set of visited zones
+
+        Returns:
+            list of neighbors zones
+        """
         neighbors: List[Zone] = []
         for connection in self.adjacency[current]:
             neighbor: Zone = connection.get_next_zone(current)

@@ -57,16 +57,17 @@ class Pathfinder():
         current: str = self.graph.start.name
         visited: Set[Tuple[str, int]] = set()
         turn: int = 0
+        tie: int = 0
         cost: float = self.graph.get_zone_cost(current)
-        heap: List[Tuple[float, int, str, List[Tuple[str, int]]]] = [
-            (cost, turn, current, [(current, turn)])
+        heap: List[Tuple[int, int, int, str, List[Tuple[str, int]]]] = [
+            (cost, tie, turn, current, [(current, turn)])
         ]
 
         if not self.is_map_possible():
             return None
 
         while heap:
-            cost, turn, current, path = heapq.heappop(heap)
+            cost, tie, turn, current, path = heapq.heappop(heap)
             if current == self.graph.end.name:
                 break
 
@@ -107,12 +108,10 @@ class Pathfinder():
                     if zone_capacity >= neighbor.max_drones:
                         continue
 
-                priority_zone: float = 0.0
-                if len(neighbors) > 1:
-                    if neighbor.zone_type == ZoneType.PRIORITY:
-                        priority_zone = -0.1
+                if neighbor.zone_type == ZoneType.PRIORITY:
+                    tie -= 1
 
-                final_cost: float = next_cost + cost + priority_zone
+                final_cost: int = next_cost + cost
                 new_path: List[Tuple[str, int]] = path.copy()
                 if is_restricted:
                     new_path.append((f"res_conn:{connection.name}", turn + 1))
@@ -123,6 +122,7 @@ class Pathfinder():
                 new_path.append((neighbor.name, next_cost))
                 heapq.heappush(heap, (
                     final_cost,
+                    tie,
                     next_cost,
                     neighbor.name,
                     new_path
@@ -133,6 +133,7 @@ class Pathfinder():
             new_path.append((current, next_turn))
             heapq.heappush(heap, (
                 cost + 1,
+                tie,
                 next_turn,
                 current,
                 new_path

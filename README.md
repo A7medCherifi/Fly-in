@@ -17,7 +17,7 @@ is implemented from scratch.
 
 ### Requirements
 
-- Python 3.10 or later
+- Python >=3.10
 - Dependencies: `rich`, `webcolors`
 
 ### Install

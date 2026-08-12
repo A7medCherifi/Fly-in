@@ -13,5 +13,6 @@ lint:
 		--disallow-untyped-defs --check-untyped-defs
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	rm -rf .mypy_cache .pytest_cache
+	rm -rf __pycache__ .mypy_cache .pytest_cache
+
+.PHONY: install run debug clean lint

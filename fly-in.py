@@ -2,23 +2,18 @@ from graph import Graph
 from parsing import Parsing
 from pathfinding import Pathfinder
 from simulation import Simulator
+import sys
 
-import argparse
 
+if __name__ == "__main__":
+    if len(sys.argv) > 3 or len(sys.argv) <= 1:
+        print("Invalid arguments, program only takes config file as argument!")
+        exit(1)
 
-def main() -> None:
-    """
-    Parse the map file, set up the pathfinder and simulator
-    and run the simulation
-    """
-    argument = argparse.ArgumentParser()
-    argument.add_argument("config_text")
-
-    args = argument.parse_args()
 
     graph: Graph = Graph()
     parsing: Parsing = Parsing(graph)
-    parsing.parse(args.config_text)
+    parsing.parse(sys.argv[1])
 
     try:
         path_finder: Pathfinder = Pathfinder(graph)
@@ -27,7 +22,3 @@ def main() -> None:
     except Exception as e:
         print(f"Error: {e}\n")
         exit(1)
-
-
-if __name__ == "__main__":
-    main()
