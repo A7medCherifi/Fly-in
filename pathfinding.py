@@ -58,7 +58,7 @@ class Pathfinder():
         visited: Set[Tuple[str, int]] = set()
         turn: int = 0
         tie: int = 0
-        cost: float = self.graph.get_zone_cost(current)
+        cost: int = self.graph.get_zone_cost(current)
         heap: List[Tuple[int, int, int, str, List[Tuple[str, int]]]] = [
             (cost, tie, turn, current, [(current, turn)])
         ]

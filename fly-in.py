@@ -10,7 +10,6 @@ if __name__ == "__main__":
         print("Invalid arguments, program only takes config file as argument!")
         exit(1)
 
-
     graph: Graph = Graph()
     parsing: Parsing = Parsing(graph)
     parsing.parse(sys.argv[1])

@@ -3,7 +3,7 @@ from pathfinding import Pathfinder
 from rich import print as rprint
 from rich.text import Text
 
-import webcolors   # type: ignore[import-untyped]
+import webcolors   # type: ignore[unused-ignore]
 
 
 class Simulator():

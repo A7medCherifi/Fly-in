@@ -8,4 +8,3 @@ dependencies = [
     "rich>=15.0.0",
     "webcolors>=25.10.0",
 ]
-
