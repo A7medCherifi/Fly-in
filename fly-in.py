@@ -6,7 +6,7 @@ import sys
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 3 or len(sys.argv) <= 1:
+    if len(sys.argv) != 2:
         print("Invalid arguments, program only takes config file as argument!")
         exit(1)
 
