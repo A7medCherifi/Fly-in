@@ -1,8 +1,10 @@
+MAP = config.txt
+
 install:
 	uv sync
 
 run:
-	python3 fly-in.py config.txt
+	python3 fly-in.py $(MAP)
 
 debug:
 	python3 -m pdb fly-in.py
