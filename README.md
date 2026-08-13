@@ -4,10 +4,10 @@
 
 ## Description
 
-Fly-in is a drone routing simulation. The program is built to solve Multi-Agent Path Finding problem (MAPF), which is multi moving entities are moving simultaneously from the start to the end
-and we need to make sure there is no bottleneck or they crash on eachother and also make sure that each one of them uses the shortest path possible.
+Fly-in is a drone routing simulation. The program is built move an n amount of drones from the same start to the same end moving them all simultaneously and using only the fewer possible movements.
+and we need to make sure there is no bottleneck or they dont not exceeding the capacity of each zone or connection.
 
-We used a graph network of zones and connections, and drones as the moving entities and simulate the movements from the start zone to the end, using only the fewest moves as possible.
+We used a graph data structure as our map that has zones and connections, and drones as the moving entities.
 
 The project is fully object-oriented and does not use any external library for
 graph logic (no networkx, no graphlib). All parsing, graph, and pathfinding logic
@@ -54,7 +54,7 @@ The map file describes the number of drones, the zones, and the connections
 between them. Example:
 
 ```
-nb_drones: 5
+nb_drones: 3
 
 start_hub: hub 0 0 [color=green]
 end_hub: goal 10 10 [color=yellow]
@@ -126,10 +126,10 @@ python3 fly-in.py maps/easy/01_linear_path
 Expected output (turn by turn drone movements):
 
 ```
-D1-waypoint1 
-D1-waypoint2 D2-waypoint1 
-D1-goal D2-waypoint2 
-D2-goal
+D1-corridorA D2-hub-roof1 
+D1-tunnelB D2-roof1 D3-corridorA 
+D1-goal D2-roof2 D3-tunnelB 
+D2-goal D3-goal 
 ```
 
 Each line represents one simulation turn. Each entry follows the format
@@ -147,4 +147,4 @@ zone.
 
 - Helps with structure this README.
 - Helps with docstrings and typehints.
-- Helps with Explaining the MAPF problem.
+- Helps with Explaining more about the graphs and dijkstra.
